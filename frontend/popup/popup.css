@@ -1,0 +1,68 @@
+body {
+	background-color: #E0F4FF;
+    color: #0D2C75;
+    
+}
+
+h2 {
+    color: white;
+    background-color: #0D2C75;
+}
+
+.toggle > div {
+    --width: 35px;
+    width: var(--width);
+    height: calc(var(--width) / 2);
+    border-radius: calc(var(--width) / 2);
+    background: #FFEB9C;
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+}
+.toggle > div::before {
+    content: "";
+    display: block;
+    width: 50%;
+    height: 100%;
+    border-radius: 50%;
+    background: #fff;
+    transition: 0.5s;
+    box-shadow: 0 0 8px gray;
+}
+.toggle [type=checkbox]:checked + div {
+    background: #FFCC00;
+}
+.toggle [type=checkbox]:checked + div:before {
+    transform: translateX(100%);
+}
+.toggle [type=checkbox] {
+    display: none;
+}
+
+.toggle.-withtext > div:after {
+    content: var(--false-text);
+    position: absolute;
+    right: 15%;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    font-size: 8px;
+}
+.toggle.-withtext [type=checkbox]:checked + div:after {
+    content: var(--true-text);
+    left: 15%;
+}
+
+/* ボタン全体 */
+#page_top {
+    width: 25px;
+    height: 25px;
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    background: #47BBFA;
+    border-radius: 50%;
+    opacity: 0.6;
+    }
+    
+ 
