@@ -10,4 +10,4 @@ https://fastapi.tiangolo.com/ja/tutorial/
 
 venvのactivate後
 
-pip install -r backend\rrequirement.txt
+pip install -r backend\requirement.txt
