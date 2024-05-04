@@ -11,21 +11,15 @@ from datetime import datetime, timedelta
 class CalenderEventGenerator:
     """
     必要な関数
-    0. それぞれの課題の情報を受け取って、締め切りの最大時間を取得する
-    1. CalenderAPIWrapperを叩いて(0で取得した最大時間を関数の引数にする)
+    1. それぞれの課題の情報を受け取って、締め切りの最大時間を取得する
+    2. CalenderAPIWrapperを叩いて(0で取得した最大時間を関数の引数にする)
        空いている時間帯を取得する
-    2. 空いている時間帯に課題を押し込むことを考える(区間スケジューリング)
-    3. CalenderAPIWrapperを叩いて、課題をカレンダーに登録する
+    3. 空いている時間帯に課題を押し込むことを考える(最初の時間からごり押し)
+    4. CalenderAPIWrapperを叩いて、課題をカレンダーに登録する
     """
     def __init__(self):
         self.calendar = CalenderAPIWrapper()
-
-    def task_execute(self):
-        """
-        課題の一覧を受け取って、カレンダーに登録する
-        """
-        tasks = self.get_tasks()
-        self.write_tasks(self.schedule_tasks(tasks))
+        self.start_time = datetime.now()
 
     def get_max_due_date(self, tasks):
         """
@@ -47,6 +41,7 @@ class CalenderEventGenerator:
 
         # start と end を datetime オブジェクトに変換
         starttime_dt = datetime(*schedule["start_time"])
+        self.start_time = starttime_dt
         endtime_dt = datetime(*schedule["end_time"]) + timedelta(days=1)
 
         # start から end までのすべての日付を取得し、for ループで処理
@@ -72,29 +67,45 @@ class CalenderEventGenerator:
             current_date += timedelta(minutes=1)  # 1 分進める
         return time_dict
 
-    def schedule_tasks(self, tasks, free_time_list):
+    def scheduling_tasks(self, tasks, time_dict):
         """
         課題を空いている時間帯に押し込む
+        event = {
+            'summary': task.title,
+            'description': f"{task.courseName}, {task.courseId}, {task.dueDate}",
+            'start': {
+                'dateTime': task.start,
+            },
+            'end': {
+                'dateTime': task.end,
+            },
+        }
         """
-        free_time_list = self.get_free_time(self.get_max_due_date(tasks))
+        for task in tasks:
+            event = {}
+            event['summary'] = task.title
+            event['description'] = f"{task.courseName}, {task.courseId}, {task.dueDate}"
+            time = task.dueDate
+            while time > 0:
+                while time_dict[self.start_time.strftime("%Y-%m-%d %H:%M:%S")] != 0:
+                    self.start_time += timedelta(minutes=1)
+                start = self.start_time.strftime("%Y-%m-%dT%H:%M:%S%z")
+                while time > 0 and time_dict[self.start_time.strftime("%Y-%m-%d %H:%M:%S")] == 0:
+                    time -= 1
+                    self.start_time += timedelta(minutes=1)
+                    end = self.start_time.strftime("%Y-%m-%dT%H:%M:%S%z")
+                if start != end:
+                    event['start'] = start
+                    event['end'] = end
+                    self.write_tasks(event)
+
         return free_time_list
 
-    def write_tasks(self, tasks):
+    def write_tasks(self, event):
         """
         課題をカレンダーに登録する
         """
-        for task in tasks:
-            event = {
-                'summary': task.title,
-                'description': f"{task.courseName}, {task.courseId}, {task.dueDate}",
-                'start': {
-                    'dateTime': task.start,
-                },
-                'end': {
-                    'dateTime': task.end,
-                },
-            }
-            self.calendar.write_calendar(event)
+        self.calendar.write_calendar(event)
 
 
 if __name__ == "__main__":
