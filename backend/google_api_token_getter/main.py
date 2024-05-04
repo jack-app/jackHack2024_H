@@ -11,20 +11,28 @@ from typing import Callable
 
 load_dotenv()
 
-# TODO: sign_queueを定期的に掃除する処理を追加する。
 class _SignQueue:
     def __init__(self, authFlow_abandoned_by = datetime.timedelta(minutes=5)):
-        self.records = []
+        self.records = {}
         self.authFlow_abandoned_by = authFlow_abandoned_by
     def put(self, state: str, authFlow: str):
-        self.records.append((state,authFlow,datetime.datetime.now()))
-    def popAll(self, state = None, authFlow = None):
-        response = tuple(record[1] for record in self.records if record[0] == state or record[1] == authFlow)
-        self.records = [record for record in self.records if record[0] != state and record[1] != authFlow]
-        return response
-    def clean_up(self):
-        self.records = [record for record in self.records if datetime.datetime.now() - record[2] < self.authFlow_abandoned_by]
+        self.records[state]= (authFlow,datetime.datetime.now())
 
+        if len(self.records) > 50:
+            asyncio.create_task(self.clean_up())
+        
+    def pop(self, state):
+        response = self.records[state][0]
+        del self.records[state]
+        return response
+    async def clean_up(self):
+        for key in self.records.keys():
+            try:
+                if datetime.datetime.now() - self.records[key][1] > self.authFlow_abandoned_by:
+                    del self.records[key]
+                await asyncio.sleep(0.1)
+            except KeyError:
+                pass
 class AuthFlowSource:
     sign_queue = _SignQueue()
 
@@ -42,7 +50,7 @@ class AuthFlowSource:
         queueにtokenGetterとstateの組が登録されていれば、これにコードをひもづける。
         失敗した場合はValueErrorを返す。
         """
-        target = AuthFlowSource.sign_queue.popAll(state=state)[0]
+        target = AuthFlowSource.sign_queue.pop(state=state)[0]
         if target is None:
             raise ValueError(
                 f"designated state: '{state}' is not found in queue: '{AuthFlowSource.states_in_sign_queue.keys()}'"
