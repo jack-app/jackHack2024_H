@@ -35,7 +35,6 @@ class CalenderAPIWrapper:
         token.write(self.creds.to_json())
 
   def read_calendar(self, time_max="2050-01-01T00:00:00+00:00"):
-    #カレンダーのイベントを最大でmax_results分取得して表示する
     try:
       service = build("calendar", "v3", credentials=self.creds)
 
@@ -76,9 +75,21 @@ class CalenderAPIWrapper:
 
 
 if __name__ == "__main__":
+  """
+  calendar_api_wrapper.pyの関数一覧
+  def __init__(self):
+    -> カレンダーのAPIを使うための初期設定を行う
+
+  def read_calendar(self, time_max):
+    -> カレンダーのイベントを取得する(現在時刻からtime_maxまでのイベントを取得する)
+
+  def write_calendar(self, event):
+    -> カレンダーにイベントを書き込む
+  """
   calendar = CalenderAPIWrapper()
-  # イベントデータを作成(CalenderEventGeneratorで作成するようにする)
   calendar.read_calendar()
+
+  # イベントデータを作成(CalenderEventGeneratorで作成するようにする)
   event = {
       'summary': 'Google I/O 2019',
       'location': '800 Howard St., San Francisco, CA 94103',
