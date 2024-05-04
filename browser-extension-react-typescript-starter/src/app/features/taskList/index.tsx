@@ -2,16 +2,21 @@ import { useState, useEffect } from 'react';
 import { getAssignments } from '../../api/assignment';
 import { TaskTable, TaskRowProps } from './TaskTable';
 import TaskEntry from '../../api/task';
+import { AssignmentEntryManager } from '../../EntryManager/assignment';
 
 export const TaskList = () => {
   const [assignments, setAssignments] = useState<TaskEntry[]>([]);
+
+  const assignmentEntryManager = new AssignmentEntryManager();
   useEffect(() => {
     // Tips: useEffect内でasync関数を直接呼ぶことはできないため、関数を定義して呼び出す
     // https://zenn.dev/syu/articles/b97fb155137d1f
     (async () => {
-      setAssignments(await getAssignments());
+      assignmentEntryManager.init();
+      const loaded = await assignmentEntryManager.getAssignments();
+      setAssignments(loaded);
     })();
-  });
+  }, []);
 
   // TODO: TACTからのデータを取得する
   const taskList: TaskRowProps[] = assignments.map((assignment) => {

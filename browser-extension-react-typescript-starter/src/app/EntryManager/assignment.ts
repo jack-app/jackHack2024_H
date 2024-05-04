@@ -1,6 +1,9 @@
-import { getAssignments } from "../"
-class AssignmentEntryManager {
-    private _assignments: AssignmentEntry[];
+import { storage } from "../storageManager";
+import { getAssignments } from "../api/assignment";
+import TaskEntry from "../api/task";
+
+export class AssignmentEntryManager {
+    private _assignments: TaskEntry[];
     constructor() {
         this._assignments = [];
     }
@@ -14,6 +17,9 @@ class AssignmentEntryManager {
     }
 
     async getAssignments() {
+        setTimeout(() => {
+            console.log('waiting...')
+        }, 3000);
         const assignmentsExists = await this._loadAssignments();
         if (this._assignments.length || assignmentsExists) {
             return this._assignments;
@@ -23,22 +29,25 @@ class AssignmentEntryManager {
         }
     }
 
-    async _fetchAssignments() {
+    private async _fetchAssignments() {
         const assignments = await getAssignments();
         console.log(assignments);
         this._assignments = assignments;
         this._saveAssignments();
     }
 
-    async _saveAssignments() {
+    private async _saveAssignments() {
         // storageはpopup/storageManager.jsで定義されている
-        await storage.save("assignments", this._assignments);
+        await storage.save("assignments", JSON.stringify(this._assignments.map(a => a.toJson())));
     }
 
-    async _loadAssignments() {
-        const assignments = await storage.get("assignments");
-        if (assignments.length) {
-            this._assignments = assignments;
+    private async _loadAssignments() {
+        const rawAssignments = await storage.get("assignments") as string | undefined;
+        console.log(rawAssignments);
+        if (rawAssignments) {
+            const assignments = JSON.parse(rawAssignments) as TaskEntry[];
+            const parsed = assignments.map(a => new TaskEntry(a.id, a.title, new Date(a.dueDate), a.courseName, a.courseId));
+            this._assignments = parsed;
             return true;
         } else {
             this._assignments = [];
