@@ -19,7 +19,7 @@ h2 {
   display: inline-block;
 }
 .toggle > div::before {
-  content: "";
+  content: '';
   display: block;
   width: 50%;
   height: 100%;
@@ -28,13 +28,13 @@ h2 {
   transition: 0.5s;
   box-shadow: 0 0 8px gray;
 }
-.toggle [type="checkbox"]:checked + div {
+.toggle [type='checkbox']:checked + div {
   background: #ffcc00;
 }
-.toggle [type="checkbox"]:checked + div:before {
+.toggle [type='checkbox']:checked + div:before {
   transform: translateX(100%);
 }
-.toggle [type="checkbox"] {
+.toggle [type='checkbox'] {
   display: none;
 }
 
@@ -47,7 +47,7 @@ h2 {
   color: #fff;
   font-size: 8px;
 }
-.toggle.-withtext [type="checkbox"]:checked + div:after {
+.toggle.-withtext [type='checkbox']:checked + div:after {
   content: var(--true-text);
   left: 15%;
 }

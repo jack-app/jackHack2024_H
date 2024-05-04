@@ -1,8 +1,6 @@
 document.getElementById("tataku").addEventListener("click", async () => {
-    getAssignments().then((data) => {
-        document.getElementById("results").innerText = "";
-        for (let i = 0; i < data.length; i++) {
-            document.getElementById("results").innerText += data[i].title + "\n";
-        }
-    })
+    const assignmentManager = new AssignmentEntryManager();
+    await assignmentManager.init();
+    const assignments = await assignmentManager.getAssignments();
+    console.log(assignments);
 });

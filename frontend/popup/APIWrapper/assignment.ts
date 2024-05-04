@@ -14,7 +14,6 @@ const getAssignments = async (): Promise<AssignmentEntry> => {
   const courses = await Promise.all(
     favoriteCourses.map(async (courseId: string) => {
       const course = await getRawCourse(courseId);
-      console.log("course", course);
       return new CourseEntry(course["entityId"], course["entityTitle"]);
     })
   );
