@@ -8,7 +8,7 @@ class GoogleApiTokenGetter:
         self.redirect_uri = redirect_uri
 
     def get_token(self, code: str) -> str:
-        url = "https://www.googleapis.com/oauth2/v4/token"
+        url = "https://oauth2.googleapis.com/token"
         data = {
             "code": code,
             "redirect_uri": self.redirect_uri,
