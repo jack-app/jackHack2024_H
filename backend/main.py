@@ -15,7 +15,18 @@ def rootRoute(response:Response, request:Request):
 async def register_entry(body: AssignmentEntry,response:Response, request:Request):
     # (header)cookieでsessionTokenを受付
     # (body)jsonでassignmentEntryを受付
-    print(body)
+    
+    # fetch("http://127.0.0.1:61000/bodyGetTest",
+    #   {method:"POST",headers: {
+    #       'Content-Type': 'application/json',
+    #       'sessionToken': 
+    #   },
+    #   body:JSON.stringify(assignmentEntry)}
+    # ) のようにしてリクエストを送ってください。
+
+    
+
+    return body
 
 
 @app.get("/getToken")
