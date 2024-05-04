@@ -1,4 +1,7 @@
+import sys
+import os
 import sqlite3
+from ..google_api_token_getter.main import *
 
 
 class SessionManager:
@@ -6,6 +9,7 @@ class SessionManager:
         pass
 
     def getAuthURL(self):
+        # return gapi.get_oauth_url()
         pass
 
     def getSessionToken(self):
@@ -15,29 +19,41 @@ class SessionManager:
         # if sessionToken in db return apitoken
         # else create apitoken
 
-        dbname = 'test.db'
+        dbname = "test.db"
         conn = sqlite3.connect(dbname)
         c = conn.cursor()
 
         line = c.execute(
-            f"select actoken from users where sstoken=?", [sessionToken]).fetchone()
+            "select id,actoken from users where sstoken=?", [sessionToken]).fetchone()
+        print(line)
 
         if line is None:
             print("data not found")
             # create actoken
+            # accessToken = gapi.get_token()
             # add actoken sstoken
+            accessToken = "ac4"
+            c.execute("insert into users(actoken,sstoken) values(?,?)", [
+                      accessToken, sessionToken])
             # return apitoken
+            conn.commit()
+            conn.close()
+            return accessToken
 
-        accessToken = line[0]
+        accessToken = line[1]
         if accessToken is None:
             # create actoken
             # add sstoken
-            # return actoken
-            pass
+            print(line[0])
+            accessToken = "ac"
+            c.execute("update users set actoken=? where id=?",
+                      [accessToken, line[0]])
+            conn.commit()
 
+        conn.close()
         return accessToken
 
 
 if __name__ == "__main__":
     sm = SessionManager()
-    sm.getGoogleAPIToken("ss1")
+    # sm.getGoogleAPIToken("ss2")
