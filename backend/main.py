@@ -1,9 +1,7 @@
-from fastapi import Body, FastAPI, Request, Response
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, Request, Response
 from shared.AssignmentEntry import AssignmentEntry
 from assignmentEntryRegister import assignmentEntryRegister
-from calenderapiwrapper.main import CalendarAPIWrapper
-from sessionmanager import SessionManager
+from sessionmanager.main import SessionManager
 
 app = FastAPI()
 
