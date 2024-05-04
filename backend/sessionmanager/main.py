@@ -1,7 +1,6 @@
 import sys
 import os
 import sqlite3
-from ..google_api_token_getter.main import *
 
 
 class SessionManager:
@@ -9,17 +8,14 @@ class SessionManager:
         pass
 
     def getAuthURL(self):
-        # return gapi.get_oauth_url()
         pass
 
     def getSessionToken(self):
         pass
 
     def getGoogleAPIToken(self, sessionToken):
-        # if sessionToken in db return apitoken
-        # else create apitoken
 
-        dbname = "test.db"
+        dbname = "sessionmanager/test.db"
         conn = sqlite3.connect(dbname)
         c = conn.cursor()
 
