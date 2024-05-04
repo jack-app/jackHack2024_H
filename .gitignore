@@ -33,3 +33,5 @@ dist-firefox-v2
 credentials.*
 credential.*
 .env
+node_modules
+dist
