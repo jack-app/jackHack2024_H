@@ -1,20 +1,20 @@
-import sys
-import os
 import sqlite3
+import secrets
 from google_api_token_getter.main import GoogleApiTokenGetter
 
 
 class SessionManager:
     def __init__(self) -> None:
-        pass
+        self.gapi = GoogleApiTokenGetter(
+            client_id="", client_secret="", redirect_uri="")
 
-    def getAuthURL(self):
-        pass
+    def getAuthURL(self) -> str:
+        return self.gapi.get_oauth_url()
 
-    def getSessionToken(self):
-        return "hey"
+    def getSessionToken(self) -> str:
+        return secrets.token_hex()
 
-    def getGoogleAPIToken(self, sessionToken):
+    def getGoogleAPIToken(self, sessionToken) -> str:
         print(sessionToken)
         dbname = "sessionmanager/test.db"
         conn = sqlite3.connect(dbname)
@@ -32,8 +32,8 @@ class SessionManager:
             # accessToken = gapi.get_token()
             # add actoken sstoken
             accessToken = "ac4"
-            c.execute("insert into users(actoken,sstoken) values(?,?)", [
-                      accessToken, sessionToken])
+            c.execute("insert into users(actoken,sstoken) values(?,?)",
+                      [accessToken, sessionToken])
             # return apitoken
             conn.commit()
             conn.close()
