@@ -1,6 +1,7 @@
-const getFavoriteCoursesId = async () => {
-    const response = await fetch('/portal/favorites/list');
-    return response.data["favoriteSiteIds"];
+const getFavoriteCoursesIds = async () => {
+    const data = await fetcher.fetch("/portal/favorites/list");
+    console.log(data);
+    return data["favoriteSiteIds"];
 }
 
 // response.data
@@ -20,13 +21,17 @@ const getFavoriteCoursesId = async () => {
 //     "autoFavoritesEnabled": true
 // }
 
+const getRawCourse = async (courseId) => {
+    const data = await fetcher.fetch(`/direct/site/${courseId}.json`);
+    return data;
+}
 
 const getAllCourses = async () => {
-    const response = await fetch("/direct/site.json");
-    if (response.data["site_collection"] === undefined) {
+    const data = await fetcher.fetch("/direct/site.json");
+    if (data["site_collection"] === undefined) {
         return [];
     }
-    const courseList = response.data["site_collection"].map((course) => {
+    const courseList = data["site_collection"].map((course) => {
         return new CourseEntry(course["entityId"], course["entityTitle"]);
     })
     return courseList;
