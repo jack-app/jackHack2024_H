@@ -1,9 +1,9 @@
-class MilliSec(int):
+class MilliSec(float):
     def toSec(self):
-        return Sec(self // 1000)
+        return Sec(self / 1000)
     def toMilliSec(self):
         return self
-class Sec(int):
+class Sec(float):
     def toSec(self):
         return self
     def toMilliSec(self):
