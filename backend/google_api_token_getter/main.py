@@ -7,24 +7,28 @@ import datetime
 import os
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
+from typing import Callable
 
 load_dotenv()
 
-# TODO: sign_queueを定期的に掃除する処理を追加する。5min以上保存している必要はないだろう
+# TODO: sign_queueを定期的に掃除する処理を追加する。
 class _SignQueue:
-    def __init__(self):
+    def __init__(self, authFlow_abandoned_by = datetime.timedelta(minutes=5)):
         self.records = []
-    def put(self, state: str, tokenGetter: str):
-        self.records.append((state,tokenGetter,datetime.datetime.now()))
-    def popAll(self, state = None, tokenGetter = None):
-        response = tuple(record[1] for record in self.records if record[0] == state or record[1] == tokenGetter)
-        self.records = [record for record in self.records if record[0] != state and record[1] != tokenGetter]
+        self.authFlow_abandoned_by = authFlow_abandoned_by
+    def put(self, state: str, authFlow: str):
+        self.records.append((state,authFlow,datetime.datetime.now()))
+    def popAll(self, state = None, authFlow = None):
+        response = tuple(record[1] for record in self.records if record[0] == state or record[1] == authFlow)
+        self.records = [record for record in self.records if record[0] != state and record[1] != authFlow]
         return response
+    def clean_up(self):
+        self.records = [record for record in self.records if datetime.datetime.now() - record[2] < self.authFlow_abandoned_by]
 
 class AuthFlowSource:
     sign_queue = _SignQueue()
 
-    def __init__(self):
+    def __init__(self, callback_function_on_signed: Callable[[GAPITokenBundle], None]):
         self.code = None
         self.result = None
         self.flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
@@ -32,9 +36,6 @@ class AuthFlowSource:
             scopes=['https://www.googleapis.com/auth/calendar.events']
         )
         self.flow.redirect_uri = os.environ['REDIRECT_URI']
-
-    def __del__(self):
-        AuthFlowSource.sign_queue.popAll(tokenGetter=self)
 
     def sign(state: str, code: str):
         """
@@ -69,6 +70,7 @@ class AuthFlowSource:
         
         tokens = self.flow.fetch_token(code=self.code)
         self.result = GAPITokenBundle(tokens["access_token"], tokens["refresh_token"])
+        
         return self.result
 
     def get_credentials(self, timeout: MilliSec = MilliSec(10000), interval: MilliSec = MilliSec(1000)) -> google.oauth2.credentials.Credentials:
