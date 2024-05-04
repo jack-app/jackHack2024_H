@@ -55,7 +55,6 @@ class GoogleApiTokenGetter:
 
         return GAPITokenBundle(tokens["access_token"], tokens["refresh_token"],tokens["expires_at"] )
 
-    # TODO: 非同期化する
     def get_oauth_url(self) -> str:
         authorization_url, state = AUTH_FLOW.authorization_url(
             accsess_type='offline',
