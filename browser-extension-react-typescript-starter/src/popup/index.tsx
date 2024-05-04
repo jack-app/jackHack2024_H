@@ -1,15 +1,17 @@
 import '../global.css';
+import './popup.css';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { proxyStore } from '../app/proxyStore';
-import Popup from './Popup';
+import { PopUp } from '../app/features/popup';
 
 proxyStore.ready().then(() => {
   createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
       <Provider store={proxyStore}>
-        <Popup />
+        {' '}
+        <PopUp />{' '}
       </Provider>
     </React.StrictMode>
   );
