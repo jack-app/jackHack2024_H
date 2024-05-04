@@ -1,6 +1,7 @@
 import sys
 import os
 import sqlite3
+from google_api_token_getter.main import GoogleApiTokenGetter
 
 
 class SessionManager:
@@ -11,10 +12,10 @@ class SessionManager:
         pass
 
     def getSessionToken(self):
-        pass
+        return "hey"
 
     def getGoogleAPIToken(self, sessionToken):
-
+        print(sessionToken)
         dbname = "sessionmanager/test.db"
         conn = sqlite3.connect(dbname)
         c = conn.cursor()
@@ -26,6 +27,8 @@ class SessionManager:
         if line is None:
             print("data not found")
             # create actoken
+
+            # gapi = GoogleApiTokenGetter()
             # accessToken = gapi.get_token()
             # add actoken sstoken
             accessToken = "ac4"
