@@ -109,6 +109,14 @@ def construct_cledentials(
         client_secret=os.environ['CLIENT_SECRET']
     )
 
+def breakdown_cledentials(
+    cred: google.oauth2.credentials.Credentials
+) -> GAPITokenBundle:
+    return GAPITokenBundle(
+        access_token=cred.token,
+        refresh_token=cred.refresh_token
+    )
+
 class GoogleApiTokenPopper:
     def __init__(self, tokenBundle: GAPITokenBundle):
         self.cred = construct_cledentials(tokenBundle)
