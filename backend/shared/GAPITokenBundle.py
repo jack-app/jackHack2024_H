@@ -1,4 +1,5 @@
-class GAPITokenBundle:
-    def __init__(self, access_token: str, refresh_token: str):
-        self.access_token = access_token
-        self.refresh_token = refresh_token
+from pydantic import BaseModel
+
+class GAPITokenBundle(BaseModel):
+    access_token: str
+    refresh_token: str

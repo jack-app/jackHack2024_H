@@ -76,7 +76,10 @@ class AuthFlowSource:
             raise TimeoutError("timeout. code is not set.")
         
         tokens = self.flow.fetch_token(code=self.code)
-        self.result = GAPITokenBundle(tokens["access_token"], tokens["refresh_token"])
+        self.result = GAPITokenBundle(
+            access_token=tokens["access_token"], 
+            refresh_token=tokens["refresh_token"]
+        )
         
         return self.result
 

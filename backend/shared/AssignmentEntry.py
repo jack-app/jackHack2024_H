@@ -1,9 +1,10 @@
 from pydantic import BaseModel
+from shared.Units import Sec
 
 class AssignmentEntry(BaseModel):
-    id: str | None
-    title: str | None
-    sourseName: str| None
-    courseId: str | None
-    dueData: str | None
-    duration: int | None #sec
+    id: str
+    title: str
+    sourseName: str
+    courseId: str
+    dueData: str
+    duration: Sec | None
