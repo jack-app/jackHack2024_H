@@ -13,11 +13,7 @@ venvをインストールしたら
 
 ## サーバーを立てる
 
-<<<<<<< HEAD
-pip install -r backend\requirement.txt
-=======
 `cd backend`の後
 `uvicorn main:app --reload`
 
 venvの有効化を忘れずに
->>>>>>> d1e66a3a7b32f72bf4c17e32e78393d693126e6c
