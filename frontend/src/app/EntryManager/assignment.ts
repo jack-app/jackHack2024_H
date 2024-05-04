@@ -10,16 +10,12 @@ export class AssignmentEntryManager {
 
     async init() {
         const assignmentsExists = await this._loadAssignments();
-        console.log(assignmentsExists);
         if (!assignmentsExists) {
             this._fetchAssignments();
         }
     }
 
     async getAssignments() {
-        setTimeout(() => {
-            console.log('waiting...')
-        }, 3000);
         const assignmentsExists = await this._loadAssignments();
         if (this._assignments.length || assignmentsExists) {
             return this._assignments;
@@ -31,7 +27,6 @@ export class AssignmentEntryManager {
 
     private async _fetchAssignments() {
         const assignments = await getAssignments();
-        console.log(assignments);
         this._assignments = assignments;
         this._saveAssignments();
     }
@@ -43,7 +38,6 @@ export class AssignmentEntryManager {
 
     private async _loadAssignments() {
         const rawAssignments = await storage.get("assignments") as string | undefined;
-        console.log(rawAssignments);
         if (rawAssignments) {
             const assignments = JSON.parse(rawAssignments) as TaskEntry[];
             const parsed = assignments.map(a => new TaskEntry(a.id, a.title, new Date(a.dueDate), a.courseName, a.courseId));
