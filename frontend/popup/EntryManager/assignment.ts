@@ -1,4 +1,5 @@
 class AssignmentEntryManager {
+    private _assignments: AssignmentEntry[];
     constructor() {
         this._assignments = [];
     }
