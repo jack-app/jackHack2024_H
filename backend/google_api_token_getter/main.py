@@ -18,7 +18,7 @@ class GoogleApiTokenGetter:
     def __init__(self):
         self.code = None
 
-    def sing(state: str, code: str):
+    def sign(state: str, code: str):
         """
         stateに対応するcodeを受け取り、stateを削除して、codeをstateに対応するsigned_statesに追加する。
         これに失敗した場合はValueErrorを返す。

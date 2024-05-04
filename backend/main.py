@@ -56,7 +56,7 @@ async def oauth2callback(state: str, error: None|str = None, code: None|str = No
     if code is None:
         return {"msg":"code is not found"}
     try:
-        GoogleApiTokenGetter.sing(state, code)
+        GoogleApiTokenGetter.sign(state, code)
         return {"msg":"success"}
     except Exception as error:
         return {"msg":"internal server error"}
