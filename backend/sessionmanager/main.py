@@ -9,4 +9,6 @@ class SessionManager:
         pass
 
     def getGoogleAPIToken(self, sessionToken):
+        # if sessionToken in db return apitoken
+        # else create apitoken
         pass
