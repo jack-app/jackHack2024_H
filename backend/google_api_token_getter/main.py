@@ -6,7 +6,7 @@ import asyncio
 import datetime
 
 AUTH_FLOW = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-    './backend/google_api_token_getter/credential.json',
+    './backend/google_api_token_getter/credentials.json',
     scopes=['https://www.googleapis.com/auth/calendar.events']
 )
 AUTH_FLOW.redirect_uri = 'https://jack.hbenpitsu.net/oauth2callback'
