@@ -48,6 +48,14 @@ async def get_token(response:Response, request:Request):
     }
     return response
 
+@app.get("/oauth2callback")
+async def oauth2callback(error: None|str = None, code: None|str = None, state: None|str = None):
+    if error:
+        return {"msg":error}
+    if code is None:
+        return {"msg":"code is not found"}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, port="61000")
