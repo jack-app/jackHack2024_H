@@ -12,7 +12,6 @@ const getAssignments = async () => {
 
     const courses = favoriteCourses.map(async (courseId) => {
         const course = await getRawCourse(courseId)
-        console.log("course", course)
         return new CourseEntry(course["entityId"], course["entityTitle"])
     })
 
