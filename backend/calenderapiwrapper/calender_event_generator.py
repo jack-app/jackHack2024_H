@@ -4,31 +4,9 @@ summary: 課題のタイトル = title
 description: 課題の説明 = (courseName, courseId, dueDate)
 start: 課題をやり始める時間 = 空いている時間に押し込む
 end: 課題をやり終える = start + duration
-
-受け取るjsonの形式
-class TaskEntry {
-    constructor(id, title, dueDate, completed, courseName, courseId) {
-        this.id = null
-        this.title = null
-        this.courseName = null
-        this.courseId = null
-        this.dueDate = null
-        duration = (sec)
-    }
-}
-カレンダー登録に必要な形式
-event = {
-    'summary': 'Google I/O 2019',
-    'description': 'A chance to hear more about Google\'s developer products.',
-    'start': {
-        'dateTime': '2024-05-28T00:00:00-07:00',
-    },
-    'end': {
-        'dateTime': '2024-05-28T01:00:00-07:00',
-    },
-}
 """
 from calender_api_wrapper import CalenderAPIWrapper
+from datetime import datetime, timedelta
 
 class CalenderEventGenerator:
     """
@@ -61,14 +39,38 @@ class CalenderEventGenerator:
         """
         空いている時間帯を取得する
         """
-        free_time_list = []
+        time_dict = {}#空いている->0, 予定がある->1以上
         if time_max == None:
             schedule = self.calendar.read_calendar()
         else:
             schedule = self.calendar.read_calendar(time_max)
-        print(schedule)
+
+        # start と end を datetime オブジェクトに変換
+        starttime_dt = datetime(*schedule["start_time"])
+        endtime_dt = datetime(*schedule["end_time"]) + timedelta(days=1)
+
+        # start から end までのすべての日付を取得し、for ループで処理
+        current_date = starttime_dt
+        while current_date <= endtime_dt:
+            time_dict[current_date.strftime("%Y-%m-%d %H:%M:%S")] = 0
+            current_date += timedelta(minutes=1)  # 1 分進める
+
+        for event in schedule["events"]:
+            # start と end を datetime オブジェクトに変換
+            start_dt = datetime(*event["start"])
+            end_dt = datetime(*event["end"]) + timedelta(minutes=1)
+            end_dt = min(end_dt, endtime_dt)
+            time_dict[start_dt.strftime("%Y-%m-%d %H:%M:%S")] += 1
+            time_dict[end_dt.strftime("%Y-%m-%d %H:%M:%S")] -= 1
         
-        return free_time_list
+        # start から end までのすべての日付を取得し、for ループで処理
+        current_date = starttime_dt
+        pre = 0
+        while current_date <= endtime_dt:
+            time_dict[current_date.strftime("%Y-%m-%d %H:%M:%S")] += pre
+            pre = time_dict[current_date.strftime("%Y-%m-%d %H:%M:%S")]
+            current_date += timedelta(minutes=1)  # 1 分進める
+        return time_dict
 
     def schedule_tasks(self, tasks, free_time_list):
         """
@@ -97,4 +99,5 @@ class CalenderEventGenerator:
 
 if __name__ == "__main__":
     calendar = CalenderEventGenerator()
-    print(calendar.get_free_time(None))
+    res = calendar.get_free_time(None)
+    print(res)

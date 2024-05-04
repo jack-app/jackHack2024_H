@@ -1,5 +1,6 @@
 import datetime
 import os.path
+import sys
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -34,13 +35,17 @@ class CalenderAPIWrapper:
       with open("token.json", "w") as token:
         token.write(self.creds.to_json())
 
-  def read_calendar(self, time_max="2050-01-01T00:00:00+00:00"):
+  def read_calendar(self, time_max="2024-05-23T00:00:00+09:00"):
+    calendar_info = {}
     try:
       service = build("calendar", "v3", credentials=self.creds)
 
       # Call the Calendar API
-      now = datetime.datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
-      print(f"{time_max}までの予定を取得します")
+      now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).isoformat()
+      start_time = dateutil.parser.parse(now)
+      calendar_info["start_time"] = [start_time.year, start_time.month, start_time.day, start_time.hour, start_time.minute, 0]
+      end_time = dateutil.parser.parse(time_max)
+      calendar_info["end_time"] = [end_time.year, end_time.month, end_time.day, end_time.hour, end_time.minute, 0]
       events_result = (
           service.events()
           .list(
@@ -55,17 +60,29 @@ class CalenderAPIWrapper:
       events = events_result.get("items", [])
 
       if not events:
-        print("No upcoming events found.")
+        print("No upcoming events found.", file=sys.stderr)
         return
 
       # Prints the start and name of the next 10 events
+      calendar_info["events"] = []
       for event in events:
-        start = event["start"].get("dateTime", event["start"].get("date"))
-        end = event["end"].get("dateTime", event["end"].get("date"))
-        print(start, end, event["summary"])
+        start = dateutil.parser.parse(event["start"].get("dateTime", event["start"].get("date")))
+        start = [start.year, start.month, start.day, start.hour, start.minute, 0]
+        end = dateutil.parser.parse(event["end"].get("dateTime", event["end"].get("date")))
+        end = [end.year, end.month, end.day, end.hour, end.minute, 0]
+
+
+        event_info = {}
+        event_info["start"] = start
+        event_info["end"] = end
+        calendar_info["events"].append(event_info)
+
 
     except HttpError as error:
-      print(f"An error occurred: {error}")
+      print(f"An error occurred: {error}", file=sys.stderr)
+
+
+    return calendar_info
 
   def write_calendar(self, event):
     #eventの内容をカレンダーに書き込む
@@ -95,10 +112,10 @@ if __name__ == "__main__":
       'location': '800 Howard St., San Francisco, CA 94103',
       'description': 'A chance to hear more about Google\'s developer products.',
       'start': {
-          'dateTime': '2024-05-09T00:00:00-07:00',
+          'dateTime': '2024-05-09T00:00:00+09:00',
       },
       'end': {
-          'dateTime': '2024-05-09T01:00:00-07:00',
+          'dateTime': '2024-05-09T01:00:00+09:00',
       },
   }
   calendar.write_calendar(event)
