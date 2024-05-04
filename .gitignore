@@ -1,4 +1,7 @@
 .venv
 __pycache__
 backend/google_api_token_getter/credentials.json
+backend\calenderapiwrapper\credentials.json
+backend\calenderapiwrapper\__pycache__
+backend\calenderapiwrapper\token.json
 .env
