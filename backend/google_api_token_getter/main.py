@@ -12,8 +12,7 @@ AUTH_FLOW = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
 AUTH_FLOW.redirect_uri = 'https://jack.hbenpitsu.net/oauth2callback'
 
 class GoogleApiTokenGetter:
-    unsinged_states = {}
-    signed_states = {}
+    states_in_sign_queue = {}
 
     def __init__(self):
         self.code = None
