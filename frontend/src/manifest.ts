@@ -15,7 +15,7 @@ const manifest = defineManifest(async (env) => ({
   },
   content_scripts: [
     {
-      matches: ['http://*/*', 'https://*/*', 'file:///*'],
+      matches: ['https://tact.ac.thers.ac.jp/*'],
       js: ['content/index.tsx'],
     },
   ],
