@@ -6,8 +6,7 @@ import asyncio
 import datetime
 
 AUTH_FLOW = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-    './credential.json',
-    access_type='offline',
+    './backend/google_api_token_getter/credential.json',
     scopes=['https://www.googleapis.com/auth/calendar.events']
 )
 AUTH_FLOW.redirect_uri = 'https://jack.hbenpitsu.net/oauth2callback'
@@ -24,16 +23,16 @@ class GoogleApiTokenGetter:
         stateに対応するcodeを受け取り、stateを削除して、codeをstateに対応するsigned_statesに追加する。
         これに失敗した場合はValueErrorを返す。
         """
-        if state in GoogleApiTokenGetter.unsigned_states:
-            target = GoogleApiTokenGetter.unsigned_states[state].tokenGetter
-            del GoogleApiTokenGetter.unsigned_states[state]
+        if state in GoogleApiTokenGetter.states_in_sign_queue:
+            target = GoogleApiTokenGetter.states_in_sign_queue[state].tokenGetter
+            del GoogleApiTokenGetter.states_in_sign_queue[state]
             
             target.code = code
 
             return
         else:
             raise ValueError(
-                f"designated state: '{state}' is not found in queue: '{GoogleApiTokenGetter.unsigned_states.keys()}'"
+                f"designated state: '{state}' is not found in queue: '{GoogleApiTokenGetter.states_in_sign_queue.keys()}'"
             )
 
     async def pop_token(self, timeout: MilliSec = MilliSec(10000), interval: MilliSec = MilliSec(1000)) -> GAPITokenBundle:
@@ -51,14 +50,15 @@ class GoogleApiTokenGetter:
         
         tokens = AUTH_FLOW.fetch_token(code=self.code)
 
-        return GAPITokenBundle(tokens["access_token"], tokens["reflesh_token"],tokens["expires_at"] )
+        return GAPITokenBundle(tokens["access_token"], tokens["refresh_token"],tokens["expires_at"] )
 
     def get_oauth_url(self) -> str:
         authorization_url, state = AUTH_FLOW.authorization_url(
             accsess_type='offline',
-            include_granted_scopes='true'
+            include_granted_scopes='true',
+            approval_prompt='force'
         )
-        GoogleApiTokenGetter.sessionToken_stateMap[state] = _SignQueueEntry(self,datetime.datetime.now())
+        GoogleApiTokenGetter.states_in_sign_queue[state] = _SignQueueEntry(self,datetime.datetime.now())
         return authorization_url
 
 class _SignQueueEntry:
