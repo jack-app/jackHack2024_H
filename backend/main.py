@@ -4,6 +4,7 @@ from shared.AssignmentEntry import AssignmentEntry
 from assignmentEntryRegister import assignmentEntryRegister
 from calenderapiwrapper.main import CalendarAPIWrapper
 from sessionmanager import SessionManager
+from google_api_token_getter.main import GoogleApiTokenGetter
 
 app = FastAPI()
 
@@ -49,12 +50,16 @@ async def get_token(response:Response, request:Request):
     return response
 
 @app.get("/oauth2callback")
-async def oauth2callback(error: None|str = None, code: None|str = None, state: None|str = None):
+async def oauth2callback(state: str, error: None|str = None, code: None|str = None):
     if error:
         return {"msg":error}
     if code is None:
         return {"msg":"code is not found"}
-
+    try:
+        GoogleApiTokenGetter.sing(state, code)
+        return {"msg":"success"}
+    except Exception as error:
+        return {"msg":"internal server error"}
 
 if __name__ == "__main__":
     import uvicorn
