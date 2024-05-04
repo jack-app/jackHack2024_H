@@ -1,8 +1,9 @@
-const getFavoriteCoursesIds = async () => {
-    const data = await fetcher.fetch("/portal/favorites/list");
-    console.log(data);
-    return data["favoriteSiteIds"];
-}
+const getFavoriteCoursesIds = async (): Promise<string[]> => {
+  // TODO: 型を追加する
+  const data = await fetcher.fetch("/portal/favorites/list");
+  console.log(data);
+  return data["favoriteSiteIds"];
+};
 
 // response.data
 //  {
@@ -21,25 +22,31 @@ const getFavoriteCoursesIds = async () => {
 //     "autoFavoritesEnabled": true
 // }
 
-const getRawCourse = async (courseId) => {
-    const data = await fetcher.fetch(`/direct/site/${courseId}.json`);
-    return data;
-}
+const getRawCourse = async (courseId: string) => {
+  // TODO: 型を追加する
+  const data = await fetcher.fetch(`/direct/site/${courseId}.json`);
+  return data;
+};
 
-const getAllCourses = async () => {
-    const data = await fetcher.fetch("/direct/site.json");
-    if (data["site_collection"] === undefined) {
-        return [];
-    }
-    const courseList = data["site_collection"].map((course) => {
-        return new CourseEntry(course["entityId"], course["entityTitle"]);
-    })
-    return courseList;
-}
+const getAllCourses = async (): Promise<CourseEntry[]> => {
+  // TODO: 型を追加する
+  const data = await fetcher.fetch("/direct/site.json");
+  if (data["site_collection"] === undefined) {
+    return [];
+  }
+
+  // TODO: 型を追加する
+  const courseList = data["site_collection"].map((course: any) => {
+    return new CourseEntry(course["entityId"], course["entityTitle"]);
+  });
+  return courseList;
+};
 
 class CourseEntry {
-    constructor(id, name) {
-        this.id = id;
-        this.name = name;
-    }
+  readonly id: string;
+  readonly name: string;
+  constructor(id: string, name: string) {
+    this.id = id;
+    this.name = name;
+  }
 }
