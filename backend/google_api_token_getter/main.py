@@ -7,7 +7,6 @@ import datetime
 import os
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
-from typing import Callable
 
 load_dotenv()
 
@@ -36,7 +35,7 @@ class _SignQueue:
 class AuthFlowSource:
     sign_queue = _SignQueue()
 
-    def __init__(self, callback_function_on_signed: Callable[[GAPITokenBundle], None]):
+    def __init__(self):
         self.code = None
         self.result = None
         self.flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
