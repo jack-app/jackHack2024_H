@@ -1,12 +1,12 @@
 import sqlite3
 import secrets
 import datetime
-from google_api_token_getter.main import GoogleApiTokenGetter
+from google_api_token_getter.main import AuthFlowSource
 
 
 class SessionManager:
     def __init__(self) -> None:
-        self.gapi = GoogleApiTokenGetter(
+        self.gapi = AuthFlowSource(
             client_id="", client_secret="", redirect_uri="")
 
         dbname = "sessionmanager/test.db"

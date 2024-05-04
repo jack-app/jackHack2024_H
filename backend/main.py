@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, Response
 from shared.AssignmentEntry import AssignmentEntry
 from assignmentEntryRegister import assignmentEntryRegister
 from sessionmanager.main import SessionManager
-from google_api_token_getter.main import GoogleApiTokenGetter
+from google_api_token_getter.main import AuthFlowSource
 
 app = FastAPI()
 
@@ -54,7 +54,7 @@ async def oauth2callback(state: str, error: None|str = None, code: None|str = No
     if code is None:
         return {"msg":"code is not found"}
     try:
-        GoogleApiTokenGetter.sign(state, code)
+        AuthFlowSource.sign(state, code)
         return {"msg":"success"}
     except Exception as error:
         return {"msg":"internal server error"}
