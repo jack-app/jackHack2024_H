@@ -1,0 +1,257 @@
+{
+  "entityPrefix": "assignment",
+  "assignment_collection": [
+    {
+      "access": "SITE",
+      "allPurposeItemText": null,
+      "allowPeerAssessment": false,
+      "attachments": [
+        {
+          "name": "2024春学期履修取り下げの手続きについて.pdf",
+          "ref": "/content/attachment/n_9999_Z_ZZ333333/a1fd2af0-d0e0-466f-b962-f1ea769ae2f8/ab4ef686-6236-4af1-a012-7bfa04fdc7d9/2024春学期履修取り下げの手続きについて.pdf",
+          "size": 126278,
+          "type": "application/pdf",
+          "url": "https://tact.ac.thers.ac.jp/access/content/attachment/n_9999_Z_ZZ333333/a1fd2af0-d0e0-466f-b962-f1ea769ae2f8/ab4ef686-6236-4af1-a012-7bfa04fdc7d9/2024%E6%98%A5%E5%AD%A6%E6%9C%9F%E5%B1%A5%E4%BF%AE%E5%8F%96%E3%82%8A%E4%B8%8B%E3%81%92%E3%81%AE%E6%89%8B%E7%B6%9A%E3%81%8D%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6.pdf"
+        }
+      ],
+      "author": "aab87111-df05-489f-acaa-ed90c6427912",
+      "authorLastModified": "aab87111-df05-489f-acaa-ed90c6427912",
+      "closeTime": {
+        "epochSecond": 1715698800,
+        "nano": 0
+      },
+      "closeTimeString": "2024-05-14T15:00:00Z",
+      "content": null,
+      "context": "n_9999_Z_ZZ333333",
+      "creator": null,
+      "dropDeadTime": {
+        "epochSecond": 1715698500,
+        "nano": 0
+      },
+      "dropDeadTimeString": "2024-05-14T14:55:00Z",
+      "dueTime": {
+        "epochSecond": 1715698500,
+        "nano": 0
+      },
+      "dueTimeString": "2024-05-14T14:55:00Z",
+      "gradeScale": "UNGRADED_GRADE_TYPE",
+      "gradeScaleMaxPoints": null,
+      "gradebookItemId": null,
+      "gradebookItemName": null,
+      "groups": [],
+      "id": "8a612cb7-ad8c-4812-a592-1bbf2f63fcc1",
+      "instructions": "<p><span style=\"font-size: 10.5pt;\"><span><span style=\"font-size: 10.0pt;\">学生　各位<br />\n<br />\n春学期の「履修取り下げ」について添付のとおり実施いたしますので、履修取り下げを希望する学生はよく読んで対応してください。</span></span></span></p>\n\n<p><span style=\"font-size: 10.0pt;\"><span>＊履修取り下げを実施するかについてはシラバスもしくは授業担当教員に確認すること。<br />\n＊全学教育科目・他学部科目は手続き方法が異なりますので、各部局にご確認ください。<br />\n＊本課題サイトは「春１期授業科目対象」です。春２期授業科目用は別に設定していますので，そちらに提出すること。</span></span></p>",
+      "maxGradePoint": null,
+      "modelAnswerText": null,
+      "openTime": {
+        "epochSecond": 1712674800,
+        "nano": 0
+      },
+      "openTimeString": "2024-04-09T15:00:00Z",
+      "position": 0,
+      "privateNoteText": null,
+      "section": "",
+      "status": "OPEN",
+      "submissionType": "SINGLE_ATTACHMENT_SUBMISSION",
+      "timeCreated": {
+        "epochSecond": 1710391651,
+        "nano": 326000000
+      },
+      "timeLastModified": {
+        "epochSecond": 1710391651,
+        "nano": 334000000
+      },
+      "title": "【5/14締切】春学期 履修取り下げについて（春１期授業科目対象）",
+      "allowResubmission": true,
+      "anonymousGrading": false,
+      "draft": false,
+      "entityReference": "/assignment/8a612cb7-ad8c-4812-a592-1bbf2f63fcc1",
+      "entityURL": "https://tact.ac.thers.ac.jp/direct/assignment/8a612cb7-ad8c-4812-a592-1bbf2f63fcc1",
+      "entityId": "8a612cb7-ad8c-4812-a592-1bbf2f63fcc1",
+      "entityTitle": "【5/14締切】春学期 履修取り下げについて（春１期授業科目対象）"
+    },
+    {
+      "access": "SITE",
+      "allPurposeItemText": null,
+      "allowPeerAssessment": false,
+      "attachments": [],
+      "author": "3328c8a5-9f3f-478c-9e83-241bbacf7b83",
+      "authorLastModified": "3328c8a5-9f3f-478c-9e83-241bbacf7b83",
+      "closeTime": {
+        "epochSecond": 1715871300,
+        "nano": 0
+      },
+      "closeTimeString": "2024-05-16T14:55:00Z",
+      "content": null,
+      "context": "n_2024_1002250",
+      "creator": null,
+      "dropDeadTime": {
+        "epochSecond": 1715785200,
+        "nano": 0
+      },
+      "dropDeadTimeString": "2024-05-15T15:00:00Z",
+      "dueTime": {
+        "epochSecond": 1715785200,
+        "nano": 0
+      },
+      "dueTimeString": "2024-05-15T15:00:00Z",
+      "gradeScale": "SCORE_GRADE_TYPE",
+      "gradeScaleMaxPoints": null,
+      "gradebookItemId": null,
+      "gradebookItemName": null,
+      "groups": [],
+      "id": "2e20b110-a668-4dbd-95df-3a76307d504b",
+      "instructions": "<p>NetworkXを用いて1と2を実行しなさい。<br />\nそして、実行したファイルをipynb形式でダウンロードし、5/15までに、TACTの「課題」から提出すること。<br />\nファイル名は「学籍番号.ipynb」とする。</p>\n\n<ol>\n\t<li>WSモデルを用いてネットワーク図と次数分布を作成しなさい（p.19を参照）</li>\n\t<li>WSモデルの再配線の確率𝑝を0.01, 0.1, 1.0と変化させ、それぞれのネットワークにおける平均距離(𝐿)とクラスター係数 (𝐶)を求め、&#xb;折れ線グラフで表示しなさい。</li>\n</ol>",
+      "maxGradePoint": "100.00",
+      "modelAnswerText": null,
+      "openTime": {
+        "epochSecond": 1713845400,
+        "nano": 0
+      },
+      "openTimeString": "2024-04-23T04:10:00Z",
+      "position": 0,
+      "privateNoteText": null,
+      "section": "",
+      "status": "OPEN",
+      "submissionType": "TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION",
+      "timeCreated": {
+        "epochSecond": 1713845935,
+        "nano": 348000000
+      },
+      "timeLastModified": {
+        "epochSecond": 1713847412,
+        "nano": 362000000
+      },
+      "title": "課題3",
+      "allowResubmission": false,
+      "anonymousGrading": false,
+      "draft": false,
+      "entityReference": "/assignment/2e20b110-a668-4dbd-95df-3a76307d504b",
+      "entityURL": "https://tact.ac.thers.ac.jp/direct/assignment/2e20b110-a668-4dbd-95df-3a76307d504b",
+      "entityId": "2e20b110-a668-4dbd-95df-3a76307d504b",
+      "entityTitle": "課題3"
+    },
+    {
+      "access": "SITE",
+      "allPurposeItemText": null,
+      "allowPeerAssessment": false,
+      "attachments": [],
+      "author": "3328c8a5-9f3f-478c-9e83-241bbacf7b83",
+      "authorLastModified": "3328c8a5-9f3f-478c-9e83-241bbacf7b83",
+      "closeTime": {
+        "epochSecond": 1715266500,
+        "nano": 0
+      },
+      "closeTimeString": "2024-05-09T14:55:00Z",
+      "content": null,
+      "context": "n_2024_1002250",
+      "creator": null,
+      "dropDeadTime": {
+        "epochSecond": 1715180400,
+        "nano": 0
+      },
+      "dropDeadTimeString": "2024-05-08T15:00:00Z",
+      "dueTime": {
+        "epochSecond": 1715180400,
+        "nano": 0
+      },
+      "dueTimeString": "2024-05-08T15:00:00Z",
+      "gradeScale": "SCORE_GRADE_TYPE",
+      "gradeScaleMaxPoints": null,
+      "gradebookItemId": null,
+      "gradebookItemName": null,
+      "groups": [],
+      "id": "811d518a-03cb-41b9-8f25-15a0f818f9ac",
+      "instructions": "<p><a href=\"https://gephi.org/datasets/lesmiserables.gml.zip\" rel=\"noopener\" target=\"_blank\" rel=\"noopener\">レ・ミゼラブルのネットワークのデータ</a>（GML形式）をダウンロードし、Colabにアップロードして、NetworkXを用いて1~4を実行しなさい。<br />\n(ヒント：NetworkXでGMLファイルを読み込む関数はread_gml)<br />\nそして、実行したファイルをipynb形式でダウンロードし、5/9までに、TACTの「課題」から提出すること。ファイル名は「学籍番号.ipynb」とする。</p>\n\n<ol>\n\t<li>レ・ミゼラブルのネットワーク（G）を描画しなさい</li>\n\t<li>Gの次数分布（CCDF）で描画しなさい</li>\n\t<li>Gのクラスター係数、平均距離を計算しなさい</li>\n\t<li>Gのページランクを計算しなさい</li>\n</ol>",
+      "maxGradePoint": "100.00",
+      "modelAnswerText": null,
+      "openTime": {
+        "epochSecond": 1713845400,
+        "nano": 0
+      },
+      "openTimeString": "2024-04-23T04:10:00Z",
+      "position": 0,
+      "privateNoteText": null,
+      "section": "",
+      "status": "OPEN",
+      "submissionType": "TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION",
+      "timeCreated": {
+        "epochSecond": 1713845680,
+        "nano": 391000000
+      },
+      "timeLastModified": {
+        "epochSecond": 1713847402,
+        "nano": 99000000
+      },
+      "title": "課題2",
+      "allowResubmission": false,
+      "anonymousGrading": false,
+      "draft": false,
+      "entityReference": "/assignment/811d518a-03cb-41b9-8f25-15a0f818f9ac",
+      "entityURL": "https://tact.ac.thers.ac.jp/direct/assignment/811d518a-03cb-41b9-8f25-15a0f818f9ac",
+      "entityId": "811d518a-03cb-41b9-8f25-15a0f818f9ac",
+      "entityTitle": "課題2"
+    },
+    {
+      "access": "SITE",
+      "allPurposeItemText": null,
+      "allowPeerAssessment": false,
+      "attachments": [],
+      "author": "3328c8a5-9f3f-478c-9e83-241bbacf7b83",
+      "authorLastModified": "3328c8a5-9f3f-478c-9e83-241bbacf7b83",
+      "closeTime": {
+        "epochSecond": 1716476100,
+        "nano": 0
+      },
+      "closeTimeString": "2024-05-23T14:55:00Z",
+      "content": null,
+      "context": "n_2024_1002250",
+      "creator": null,
+      "dropDeadTime": {
+        "epochSecond": 1716390000,
+        "nano": 0
+      },
+      "dropDeadTimeString": "2024-05-22T15:00:00Z",
+      "dueTime": {
+        "epochSecond": 1716390000,
+        "nano": 0
+      },
+      "dueTimeString": "2024-05-22T15:00:00Z",
+      "gradeScale": "SCORE_GRADE_TYPE",
+      "gradeScaleMaxPoints": null,
+      "gradebookItemId": null,
+      "gradebookItemName": null,
+      "groups": [],
+      "id": "83f55a69-b886-49f9-ab29-7c536f4a4419",
+      "instructions": "<p>補足資料1「計算社会科学とは何か」のp.6~13を読みなさい。そして、 次の質問に関する回答をレポートにまとめなさい(A4 1枚程度)。 レポートは、5/22までに「学生番号.pdf」として、TACTの「課題」か ら提出すること。</p>\n\n<ol>\n\t<li>ソーシャルダイナミクスとの関係でビッグデータの特徴を述べなさ い。</li>\n\t<li>ビッグデータを用いると、どんなソーシャルダイナミクスの研究が 可能になるか、あなたの考えを述べなさい。</li>\n</ol>",
+      "maxGradePoint": "100.00",
+      "modelAnswerText": null,
+      "openTime": {
+        "epochSecond": 1714402800,
+        "nano": 0
+      },
+      "openTimeString": "2024-04-29T15:00:00Z",
+      "position": 0,
+      "privateNoteText": null,
+      "section": "",
+      "status": "OPEN",
+      "submissionType": "TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION",
+      "timeCreated": {
+        "epochSecond": 1713846015,
+        "nano": 540000000
+      },
+      "timeLastModified": {
+        "epochSecond": 1713847422,
+        "nano": 698000000
+      },
+      "title": "課題4",
+      "allowResubmission": false,
+      "anonymousGrading": false,
+      "draft": false,
+      "entityReference": "/assignment/83f55a69-b886-49f9-ab29-7c536f4a4419",
+      "entityURL": "https://tact.ac.thers.ac.jp/direct/assignment/83f55a69-b886-49f9-ab29-7c536f4a4419",
+      "entityId": "83f55a69-b886-49f9-ab29-7c536f4a4419",
+      "entityTitle": "課題4"
+    }
+  ]
+}
