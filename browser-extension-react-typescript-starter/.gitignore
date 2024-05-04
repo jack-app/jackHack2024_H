@@ -1,9 +1,3 @@
-.venv
-__pycache__
-
-credentials.*
-.env
-
 # Logs
 logs
 *.log
@@ -29,7 +23,3 @@ dist-firefox-v2
 *.njsproj
 *.sln
 *.sw?
-
-credentials.*
-credential.*
-.env
