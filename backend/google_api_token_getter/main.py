@@ -2,10 +2,15 @@ import requests
 
 
 class GoogleApiTokenGetter:
-    def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.redirect_uri = redirect_uri
+    # def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
+    #     self.client_id = client_id
+    #     self.client_secret = client_secret
+    #     self.redirect_uri = redirect_uri
+
+    def __init__(self):
+        self.client_id = "client_id"
+        self.client_secret = "client_secret"
+        self.redirect_uri = "redirect_uri"
 
     def get_token(self, code: str) -> str:
         url = "https://oauth2.googleapis.com/token"
