@@ -11,4 +11,13 @@ export default class TaskEntry {
     this.courseId = courseId;
     this.dueDate = dueDate;
   }
+  toJson() {
+    return {
+      id: this.id,
+      title: this.title,
+      dueDate: this.dueDate,
+      courseName: this.courseName,
+      courseId: this.courseId,
+    };
+  }
 }

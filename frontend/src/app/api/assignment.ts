@@ -11,7 +11,7 @@ export const getRawAllAssignments = async (): Promise<any> => {
   return data['assignment_collection'];
 };
 
-export const getAssignments = async (): Promise<AssignmentEntry> => {
+export const getAssignments = async (): Promise<TaskEntry[]> => {
   const rawAssignments = await getRawAllAssignments();
   const favoriteCourses = await getFavoriteCoursesIds();
 
@@ -29,20 +29,14 @@ export const getAssignments = async (): Promise<AssignmentEntry> => {
     if (course === undefined) {
       course = new CourseEntry('unknown', 'unknown');
     }
-    const assignmentEntry = new AssignmentEntry(
+    const tasks = new TaskEntry(
       assignment['entityId'],
       assignment['entityTitle'],
       assignment['dueTimeString'],
       course.name,
       course.id
     );
-    return assignmentEntry;
+    return tasks;
   });
   return assignments;
 };
-
-class AssignmentEntry extends TaskEntry {
-  constructor(id: string, title: string, dueDate: Date, courseName: string, courseId: string) {
-    super(id, title, dueDate, courseName, courseId);
-  }
-}
