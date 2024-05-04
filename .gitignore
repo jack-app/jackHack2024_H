@@ -29,3 +29,7 @@ dist-firefox-v2
 *.njsproj
 *.sln
 *.sw?
+
+credentials.*
+credential.*
+.env
