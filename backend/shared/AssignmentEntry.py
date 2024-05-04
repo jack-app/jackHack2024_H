@@ -6,4 +6,4 @@ class AssignmentEntry(BaseModel):
     sourseName: str| None
     courseId: str | None
     dueData: str | None
-    duration: int | None
+    duration: int | None #sec
