@@ -4,12 +4,16 @@ from shared.Units import Sec, MilliSec
 from shared.GAPITokenBundle import GAPITokenBundle
 import asyncio
 import datetime
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 AUTH_FLOW = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
     './backend/google_api_token_getter/credentials.json',
     scopes=['https://www.googleapis.com/auth/calendar.events']
 )
-AUTH_FLOW.redirect_uri = 'https://jack.hbenpitsu.net/oauth2callback'
+AUTH_FLOW.redirect_uri = os.environ['REDIRECT_URI']
 
 class GoogleApiTokenGetter:
     states_in_sign_queue = {}
