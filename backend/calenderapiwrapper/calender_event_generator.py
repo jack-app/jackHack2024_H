@@ -124,7 +124,7 @@ class CalenderEventGenerator:
 
 
 if __name__ == "__main__":
-    calendar = CalenderEventGenerator()
+    calendar = CalenderEventGenerator(creds)
     event = AssignmentEntry(
         id="1",
         title="課題1",
