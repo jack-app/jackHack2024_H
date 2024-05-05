@@ -7,6 +7,15 @@ from GoogleAPITokenHandler.main import AuthFlowSource, breakdown_cledentials, co
 
 app = FastAPI()
 
+from starlette.middleware.cors import CORSMiddleware # 追加
+# CORSを回避するために追加（今回の肝）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,   # 追記により追加
+    allow_methods=["*"],      # 追記により追加
+    allow_headers=["*"]       # 追記により追加
+)
 
 @app.get("/")
 def rootRoute(response:Response, request:Request):
@@ -17,10 +26,10 @@ def rootRoute(response:Response, request:Request):
 
 @app.post("/register")
 async def register_entry(body:AssignmentEntry,request:Request,response:Response):
-    # (header)cookieでsessionTokenを受付
+    # (header)cookieでtokenを受付
     # (body)jsonでassignmentEntryを受付
     
-    # fetch("http://127.0.0.1:61000/bodyGetTest",
+    # fetch("http://***/register",
     #   {method:"POST",headers: {
     #       'Content-Type': 'application/json',
     #       'sessionToken': 'token'
@@ -75,8 +84,8 @@ async def refreshTokens(request: Request, response: Response):
         response.status_code = 200
 
         bundle = breakdown_cledentials(cred)
-        response.set_cookie(key="refreshToken",value=bundle.refresh_token)#,httponly=True,secure=True
-        response.set_cookie(key="accessToken",value=bundle.access_token)#,httponly=True,secure=True
+        response.set_cookie(key="refreshToken",value=bundle.refresh_token,httponly=True,secure=True)
+        response.set_cookie(key="accessToken",value=bundle.access_token,httponly=True,secure=True)
         
         return {"msg": "successfully done."}
     
@@ -88,11 +97,11 @@ async def refreshTokens(request: Request, response: Response):
 async def getTokens(request: Request, response: Response):
     print(request.cookies)
     state = "state unspesified"
-    if "AuthFlowState" in request.cookies:
-        state = request.cookies["AuthFlowState"]
+    if "AuthFlowState" not in request.cookies:
         response.status_code = 400
         return {"msg": "AuthFlowState cookie is not supplied."}
     
+    state = request.cookies["AuthFlowState"]
     targetFlow = SIGN_QUEUE.get(state)
     
     try:
@@ -104,33 +113,8 @@ async def getTokens(request: Request, response: Response):
     except ReAuthentificationNeededException:
         response.status_code = 401
         return {"msg": "code was invaild. try to re-authentificate from scrach."}
-    response.set_cookie(key="refreshToken",value=targetFlow.result.refresh_token)#,httponly=True,secure=True
-    response.set_cookie(key="accessToken",value=targetFlow.result.access_token)#,httponly=True,secure=True
-    
-    return {"msg": "successfully done."}
-
-@app.post("/postTokenRequest")
-async def postTokenRequest(request: Request, response: Response):
-    print(request.cookies)
-    state = "state unspesified"
-    if "AuthFlowState" in request.cookies:
-        state = request.cookies["AuthFlowState"]
-        response.status_code = 400
-        return {"msg": "AuthFlowState cookie is not supplied."}
-    
-    targetFlow = SIGN_QUEUE.get(state)
-    
-    try:
-        await targetFlow.issue_gapi_tokens()
-        SIGN_QUEUE.remove(state)
-    except TimeoutError:
-        response.status_code = 408
-        return {"msg": "getting traial timeout. try again after authorizing this application."}
-    except ReAuthentificationNeededException:
-        response.status_code = 401
-        return {"msg": "code was invaild. try to re-authentificate from scrach."}
-    response.set_cookie(key="refreshToken",value=targetFlow.result.refresh_token)#,httponly=True,secure=True
-    response.set_cookie(key="accessToken",value=targetFlow.result.access_token)#,httponly=True,secure=True
+    response.set_cookie(key="refreshToken",value=targetFlow.result.refresh_token,httponly=True,secure=True)
+    response.set_cookie(key="accessToken",value=targetFlow.result.access_token,httponly=True,secure=True)
     
     return {"msg": "successfully done."}
 
@@ -138,7 +122,7 @@ async def postTokenRequest(request: Request, response: Response):
 @app.get("/getAuthFlowState")
 def issueAuthFlow(response:Response, request:Request):
     authFlow = AuthFlowSource()
-    response.set_cookie(key="AuthFlowState", value=authFlow.state )#,httponly=True ,secure=True
+    response.set_cookie(key="AuthFlowState", value=authFlow.state ,httponly=True ,secure=True)
     
     return {"auth_url": authFlow.get_oauth_url()}
 
