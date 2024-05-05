@@ -129,7 +129,7 @@ if __name__ == "__main__":
         id="1",
         title="課題1",
         courseName="Google Classroom",
-        courseId="1",
+        courseId="1",#これはなんだろう
         dueDate="2024-05-20 23:59:59",
         duration=600,
     )
