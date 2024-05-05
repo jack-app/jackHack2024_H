@@ -1,0 +1,16 @@
+{
+  "name": "jackHack2024_H",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "description": "Sample Chrome Extension",
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://tact.ac.thers.ac.jp/portal/*"],
+      "js": ["src/main.js"]
+    }
+  ]
+}

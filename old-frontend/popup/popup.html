@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <i class="fas fa-angle-up"></i>
+  <head>	
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body> 
+    <div>
+      <h2>課題リスト　設定</h2>
+      <p>新しい課題を自動でカレンダーに保存しますか？</p>
+      <a class="btn btn-primary" href="#">はい</a>
+      <a class="btn btn-primary" href="#">いいえ</a>
+     
+      <form action="#" method="post">
+        <label for="message">デフォルトの所要時間</label>
+        <textarea name="message" id="message" rows="1"></textarea>
+        <button type="submit">OK</button>
+      </form>
+<!-- 2ページ目 -->
+      <h2>課題リスト　設定</h2>
+      <h4 id="table">課題一覧</h4>
+    			<table class="table table-striped">
+    			    <thead>
+    			        <tr>
+    			            <th>#</th>
+    			            <th>課題名</th>
+    			            <th>講義サイト</th>
+    			            <th>締切日時</th>
+                      <th>カレンダーに登録</th>
+    			        </tr>
+    			    </thead>
+    			    <tbody>
+    			        <tr>
+    			            <td>1</td>
+    			            <td>課題１</td>
+    			            <td>線形代数学１</td>
+    			            <td>2024/05/04 11:13</td>
+                      <td><label class="toggle -withtext" style="--true-text:'ON'; --false-text:'OFF';"> 
+                        <input type="checkbox"><div></div>
+                          </label></td>
+    			        </tr>
+                    	<tr>
+                    		<td>2</td>
+                    		<td>課題１</td>
+                    		<td>線形代数学１</td>
+                    		<td>2024/05/04 11:13</td>
+                        <td><label class="toggle -withtext" style="--true-text:'ON'; --false-text:'OFF';"> 
+                          <input type="checkbox"><div></div>
+                            </label></td>
+                    	</tr>
+	                    <tr>
+					              <td>3</td>
+                    		<td>課題１</td>
+                    		<td>線形代数学１</td>
+                    		<td>2024/05/04 11:13</td>
+                        <td><label class="toggle -withtext" style="--true-text:'ON'; --false-text:'OFF';">
+                          <input type="checkbox"><div></div>
+                            </label></td>  
+                    	</tr>
+                    	<tr>
+                    		<td>4</td>
+                    		<td>課題１</td>
+                    		<td>線形代数学１</td>
+                    		<td>2024/05/04 11:13</td>
+                        <td><label class="toggle -withtext" style="--true-text:'ON'; --false-text:'OFF';">
+                          <input type="checkbox"><div></div>
+                            </label></td>
+                    	</tr>
+    			    </tbody>
+    			</table>
+          <a href="#" id="page_top" class="page_top_btn"></a>
+    
+
+    </div>
+
+  </body>
+  <script src="APIWrapper/task.js"></script>
+  <script src="APIWrapper/fetcher.js"></script>
+  <script src="APIWrapper/course.js"></script>
+  <script src="APIWrapper/assignment.js"></script>
+  <script src="popup.js"></script>
+</html>
