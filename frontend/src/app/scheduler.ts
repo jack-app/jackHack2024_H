@@ -10,7 +10,3 @@ export async function RegisterAssignmentsOnLoad() {
         // Secsion manager: add all tasks
     }
 }
-
-export async function RegisterAssignmentOnButtonClicked(task: TaskEntry) {
-    // Secsion manager: add task
-}
