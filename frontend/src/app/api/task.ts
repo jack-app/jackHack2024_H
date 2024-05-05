@@ -1,14 +1,14 @@
 export default class TaskEntry {
   readonly id: string;
   readonly title: string;
-  readonly openTime: Date;
+  // readonly openTime: Date;
   readonly dueDate: Date;
   readonly courseName: string;
   readonly courseId: string;
   constructor(
     id: string,
     title: string,
-    openTime: Date,
+    // openTime: Date,
     dueDate: Date,
     courseName: string,
     courseId: string
@@ -18,13 +18,13 @@ export default class TaskEntry {
     this.courseName = courseName;
     this.courseId = courseId;
     this.dueDate = dueDate;
-    this.openTime = openTime;
+    // this.openTime = openTime;
   }
   toJson() {
     return {
       id: this.id,
       title: this.title,
-      openTime: this.openTime,
+      // openTime: this.openTime,
       dueDate: this.dueDate,
       courseName: this.courseName,
       courseId: this.courseId,

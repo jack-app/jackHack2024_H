@@ -45,7 +45,7 @@ export class AssignmentEntryManager {
           new TaskEntry(
             a.id,
             a.title,
-            new Date(a.openTime),
+            // new Date(a.openTime),
             new Date(a.dueDate),
             a.courseName,
             a.courseId
