@@ -1,6 +1,6 @@
 # This file is used to test the GoogleApiTokenGetter class
 import asyncio
-from google_api_token_getter.main import AuthFlowSource,GoogleApiTokenPopper,construct_cledentials
+from GoogleAPITokenHandler.main import AuthFlowSource,GoogleApiTokenPopper,construct_cledentials
 
 tokenGetter = AuthFlowSource()
 print(tokenGetter.get_oauth_url())

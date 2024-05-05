@@ -11,6 +11,7 @@ import requests
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from shared.Exceptions import ReAuthentificationNeededException
 from google.auth.exceptions import RefreshError
+import secrets
 
 load_dotenv()
 
@@ -36,11 +37,13 @@ class _SignQueue:
                 await asyncio.sleep(0.1)
             except KeyError:
                 pass
+
 class AuthFlowSource:
     sign_queue = _SignQueue()
 
     def __init__(self):
         self.code = None
+        self.state = secrets.token_hex()
         self.result = None
         self.flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
             './google_api_token_getter/credentials.json',
@@ -98,7 +101,8 @@ class AuthFlowSource:
         authorization_url, state = self.flow.authorization_url(
             accsess_type='offline',
             include_granted_scopes='true',
-            approval_prompt='force'
+            approval_prompt='force',
+            state=self.state
         )
         AuthFlowSource.sign_queue.put(state,self)
         return authorization_url

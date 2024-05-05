@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, Response
 from shared.AssignmentEntry import AssignmentEntry
 from assignmentEntryRegister import assignmentEntryRegister
 from sessionmanager.main import SessionManager
-from google_api_token_getter.main import AuthFlowSource
+from GoogleAPITokenHandler.main import AuthFlowSource
 
 app = FastAPI()
 
