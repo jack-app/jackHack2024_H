@@ -29,12 +29,11 @@ export const getAssignments = async (): Promise<TaskEntry[]> => {
     if (course === undefined) {
       course = new CourseEntry('unknown', 'unknown');
     }
-    // TODO: Date型に変換する
     const tasks = new TaskEntry(
       assignment['entityId'],
       assignment['entityTitle'],
-      assignment['openTimeString'],
-      assignment['dueTimeString'],
+      new Date(assignment['openTime']),
+      new Date(assignment['dueTime']),
       course.name,
       course.id
     );
