@@ -14,10 +14,10 @@ from shared.Exceptions import ReAuthentificationNeededException
 from google.auth.exceptions import RefreshError
 import secrets
 
-load_dotenv()
+load_dotenv('./GoogleAPITokenHandler/.env')
 
 FLOW = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-            './google_api_token_getter/credentials.json',
+            './GoogleAPITokenHandler/credentials.json',
             scopes=['https://www.googleapis.com/auth/calendar.events']
         )
 FLOW.redirect_uri = os.environ['REDIRECT_URI']
@@ -45,8 +45,9 @@ class _SignQueue:
             except KeyError:
                 pass
 
+SIGN_QUEUE = _SignQueue()
+
 class AuthFlowSource:
-    queue = _SignQueue()
 
     def __init__(self):
         self.code = None
@@ -58,7 +59,7 @@ class AuthFlowSource:
         queueにtokenGetterとstateの組が登録されていれば、これにコードをひもづける。
         失敗した場合はValueErrorを返す。
         """
-        target = AuthFlowSource.queue.get(state=state)[0]
+        target = SIGN_QUEUE.get(state)
         if target is None:
             raise ValueError(
                 f"designated state: '{state}' is not found in queue: '{AuthFlowSource.states_in_sign_queue.keys()}'"
@@ -95,13 +96,13 @@ class AuthFlowSource:
         return self.result
 
     def get_oauth_url(self) -> str:
-        authorization_url, state = self.flow.authorization_url(
+        authorization_url, state = FLOW.authorization_url(
             accsess_type='offline',
             include_granted_scopes='true',
             approval_prompt='force',
             state=self.state
         )
-        AuthFlowSource.queue.put(state,self)
+        SIGN_QUEUE.put(state,self)
         return authorization_url
 
 
@@ -129,12 +130,18 @@ def breakdown_cledentials(
         refresh_token=cred.refresh_token
     )
 
+def refresh_credentials(
+    cred: google.oauth2.credentials.Credentials
+):
+    try:
+        cred.refresh(Request())
+    except RefreshError as error:
+        raise ReAuthentificationNeededException("token-refresh failed. please re-authenticate.")
+        
+
 class GoogleApiTokenPopper:
     def __init__(self, tokenBundle: GAPITokenBundle):
         self.cred = construct_cledentials(tokenBundle)
     def pop(self):
-        try:
-            self.cred.refresh(Request())
-        except RefreshError as error:
-            raise ReAuthentificationNeededException("token-refresh failed. please re-authenticate.")
+        refresh_credentials(self.cred)
         return self.cred.token
