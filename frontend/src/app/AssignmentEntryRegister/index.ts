@@ -36,14 +36,7 @@ export default class AssignmentEntryRegister {
       assignments
         .filter((assignment) => !assignment.isRegistered(lastUpdateDateTime))
         .map(async (assignment) => {
-          const response = await fetch('https://jack.hbenpitsu.net/register', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ assignment: assignment.toJson() }),
-          });
-          return response.ok;
+          return await AssignmentEntryRegister.register(assignment);
         })
     );
     await this.setLastUpdateDateTime(new Date());
@@ -57,5 +50,16 @@ export default class AssignmentEntryRegister {
 
   async setLastUpdateDateTime(date: Date) {
     await storage.save('lastUpdateTime', date.toISOString());
+  }
+
+  static async register(assignment: AssignmentEntry): Promise<boolean> {
+    const response = await fetch('https://jack.hbenpitsu.net/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ assignment: assignment.toJson() }),
+    });
+    return response.ok;
   }
 }
