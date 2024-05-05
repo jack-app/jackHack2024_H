@@ -28,10 +28,7 @@ const TaskRow = ({ task, onClickRegister, index }: TaskRowProps & { index: numbe
       <td>{task.courseName}</td>
       <td>{dueString}</td>
       <td>
-        <label className="toggle -withtext">
-          <input onClick={() => onClickRegister(task)} type="checkbox" />
-          <div></div>
-        </label>
+        <button onClick={() => onClickRegister(task)}>登録</button>
       </td>
     </tr>
   );

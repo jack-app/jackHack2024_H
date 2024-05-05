@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getAssignments } from '../../api/assignment';
 import { TaskTable, TaskRowProps } from './TaskTable';
 import TaskEntry from '../../api/task';
 import { AssignmentEntryManager } from '../../EntryManager/assignment';
+import AssignmentEntry from '../../AssignmentEntryRegister/assignment';
+import { storage } from '../../storageManager';
+import AssignmentEntryRegister from '../../AssignmentEntryRegister';
 
 export const TaskList = () => {
   const [assignments, setAssignments] = useState<TaskEntry[]>([]);
@@ -22,8 +24,15 @@ export const TaskList = () => {
   const taskList: TaskRowProps[] = assignments.map((assignment) => {
     return {
       task: assignment,
-      onClickRegister: (task) => {
-        console.log(task);
+      onClickRegister: async (task) => {
+        const defalutTime = (await storage.get('defaultTime')) as string;
+        const assignmentEntry = new AssignmentEntry(task, defalutTime ? parseInt(defalutTime) : 0);
+        const ok = await AssignmentEntryRegister.register(assignmentEntry);
+        if (ok) {
+          alert('登録しました');
+        } else {
+          alert('登録に失敗しました');
+        }
       },
     };
   });
