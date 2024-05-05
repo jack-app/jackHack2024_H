@@ -3,6 +3,40 @@ import { AssignmentEntryManager } from '../EntryManager/assignment';
 import { storage } from '../storageManager';
 import AssignmentEntry from './assignment';
 
+class RequiredAssignmentEntry {
+  readonly id: string;
+  readonly title: string;
+  readonly dueDate: Date;
+  readonly courseName: string;
+  readonly courseId: string;
+  readonly duration: number;
+  constructor(
+    id: string,
+    title: string,
+    dueDate: Date,
+    courseName: string,
+    courseId: string,
+    duration: number
+  ) {
+    this.id = id;
+    this.title = title;
+    this.courseName = courseName;
+    this.courseId = courseId;
+    this.dueDate = dueDate;
+    this.duration = duration;
+  }
+  toJson() {
+    return {
+      id: this.id,
+      title: this.title,
+      dueDate: this.dueDate,
+      courseName: this.courseName,
+      courseId: this.courseId,
+      duration: this.duration,
+    };
+  }
+}
+
 export default class AssignmentEntryRegister {
   readonly manager = new AssignmentEntryManager();
   tasks: TaskEntry[];
@@ -53,12 +87,21 @@ export default class AssignmentEntryRegister {
   }
 
   static async register(assignment: AssignmentEntry): Promise<boolean> {
+    const json = assignment.toJson();
+    const body = new RequiredAssignmentEntry(
+      json.id, 
+      json.title, 
+      json.dueDate, 
+      json.courseName, 
+      json.courseId, 
+      json.duration
+    )
     const response = await fetch('https://jack.hbenpitsu.net/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ assignment: assignment.toJson() }),
+      body: JSON.stringify(body.toJson()),
     });
     return response.ok;
   }

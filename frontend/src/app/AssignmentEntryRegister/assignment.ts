@@ -8,9 +8,7 @@ export default class AssignmentEntry {
     this.duration = duration;
   }
   isRegistered(date: Date) {
-    // return this.task.openTime <= date;
-    // FIXME: コメントアウトを戻す
-    return false;
+    return this.task.openTime <= date;
   }
   toJson() {
     return {
