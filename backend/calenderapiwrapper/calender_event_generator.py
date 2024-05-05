@@ -1,6 +1,5 @@
-from calender_api_wrapper import CalenderAPIWrapper
+from calenderapiwrapper.calender_api_wrapper import CalenderAPIWrapper
 from datetime import datetime, timedelta, timezone
-from AssignmentEntry import AssignmentEntry
 
 class CalenderEventGenerator:
     """
@@ -108,8 +107,7 @@ class CalenderEventGenerator:
     def __convert_datetime(self, datetime_str):
         original_datetime_str = datetime_str
         original_datetime = datetime.strptime(original_datetime_str, "%Y-%m-%dT%H:%M:%S")
-        original_datetime = original_datetime + timedelta(hours=9)
-        jst = timezone(timedelta(hours=0))
+        jst = timezone(timedelta(hours=9))
         new_datetime = original_datetime.astimezone(jst)
         new_datetime_str = new_datetime.strftime("%Y-%m-%dT%H:%M:%S%z")
         return new_datetime_str
@@ -123,14 +121,14 @@ class CalenderEventGenerator:
         self._scheduling_event(event, time_dict)
 
 
-if __name__ == "__main__":
-    calendar = CalenderEventGenerator(creds)
-    event = AssignmentEntry(
-        id="1",
-        title="課題1",
-        courseName="Google Classroom",
-        courseId="1",#これはなんだろう
-        dueDate="2024-05-20 23:59:59",
-        duration=600,
-    )
-    calendar.write_event_to_calendar(event)
+# if __name__ == "__main__":
+#     calendar = CalenderEventGenerator(creds)
+#     event = AssignmentEntry(
+#         id="1",
+#         title="課題1",
+#         courseName="Google Classroom",
+#         courseId="1",#これはなんだろう
+#         dueDate="2024-05-20 23:59:59",
+#         duration=600,
+#     )
+#     calendar.write_event_to_calendar(event)

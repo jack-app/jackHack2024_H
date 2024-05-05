@@ -14,4 +14,16 @@ print(tokenBundle.refresh_token)
 credentials = construct_cledentials(tokenBundle)
 tokenPopper = GoogleApiTokenPopper(tokenBundle)
 
-print(tokenPopper.pop())
+from assignmentEntryRegister import assignmentEntryRegister
+from shared.AssignmentEntry import AssignmentEntry
+
+ae = AssignmentEntry(
+        id="1",
+        title="課題1",
+        courseName="Google Classroom",
+        courseId="1",#これはなんだろう
+        dueDate="2024-05-20 23:59:59",
+        duration=60
+)#MOCK
+
+assignmentEntryRegister(ae, credentials)
