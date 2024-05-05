@@ -119,16 +119,3 @@ class CalenderEventGenerator:
         time_max = self._get_max_due_date(event)
         time_dict = self._get_free_time(time_max)
         self._scheduling_event(event, time_dict)
-
-
-# if __name__ == "__main__":
-#     calendar = CalenderEventGenerator(creds)
-#     event = AssignmentEntry(
-#         id="1",
-#         title="課題1",
-#         courseName="Google Classroom",
-#         courseId="1",#これはなんだろう
-#         dueDate="2024-05-20 23:59:59",
-#         duration=600,
-#     )
-#     calendar.write_event_to_calendar(event)
