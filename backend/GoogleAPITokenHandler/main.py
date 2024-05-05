@@ -1,3 +1,4 @@
+from urllib import response
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 from shared.Units import Sec, MilliSec
@@ -15,6 +16,12 @@ import secrets
 
 load_dotenv()
 
+FLOW = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+            './google_api_token_getter/credentials.json',
+            scopes=['https://www.googleapis.com/auth/calendar.events']
+        )
+FLOW.redirect_uri = os.environ['REDIRECT_URI']
+
 class _SignQueue:
     def __init__(self, authFlow_abandoned_by = datetime.timedelta(minutes=5)):
         self.records = {}
@@ -24,11 +31,11 @@ class _SignQueue:
 
         if len(self.records) > 50:
             asyncio.create_task(self.clean_up())
-        
-    def pop(self, state):
+    def get(self, state):
         response = self.records[state][0]
-        del self.records[state]
         return response
+    def remove(self, state):
+        del self.records[state]
     async def clean_up(self):
         for key in self.records.keys():
             try:
@@ -39,24 +46,19 @@ class _SignQueue:
                 pass
 
 class AuthFlowSource:
-    sign_queue = _SignQueue()
+    queue = _SignQueue()
 
     def __init__(self):
         self.code = None
         self.state = secrets.token_hex()
         self.result = None
-        self.flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-            './google_api_token_getter/credentials.json',
-            scopes=['https://www.googleapis.com/auth/calendar.events']
-        )
-        self.flow.redirect_uri = os.environ['REDIRECT_URI']
 
     def sign(state: str, code: str):
         """
         queueにtokenGetterとstateの組が登録されていれば、これにコードをひもづける。
         失敗した場合はValueErrorを返す。
         """
-        target = AuthFlowSource.sign_queue.pop(state=state)[0]
+        target = AuthFlowSource.queue.get(state=state)[0]
         if target is None:
             raise ValueError(
                 f"designated state: '{state}' is not found in queue: '{AuthFlowSource.states_in_sign_queue.keys()}'"
@@ -83,19 +85,14 @@ class AuthFlowSource:
             raise TimeoutError("timeout. code is not set.")
         
         try:
-            tokens = self.flow.fetch_token(code=self.code)
+            tokens = FLOW.fetch_token(code=self.code)
             self.result = GAPITokenBundle(
                 access_token=tokens["access_token"], 
                 refresh_token=tokens["refresh_token"]
             )
-        except InvalidGrantError as error:
+        except InvalidGrantError:
             raise ReAuthentificationNeededException("given code was invalid. please re-authenticate.")
         return self.result
-
-    async def get_credentials(self, timeout: MilliSec = MilliSec(10000), interval: MilliSec = MilliSec(1000)) -> google.oauth2.credentials.Credentials:
-        if not self.flow.credentials:
-            await self.issue_gapi_tokens(timeout, interval)
-        return self.flow.credentials
 
     def get_oauth_url(self) -> str:
         authorization_url, state = self.flow.authorization_url(
@@ -104,7 +101,7 @@ class AuthFlowSource:
             approval_prompt='force',
             state=self.state
         )
-        AuthFlowSource.sign_queue.put(state,self)
+        AuthFlowSource.queue.put(state,self)
         return authorization_url
 
 

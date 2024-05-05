@@ -1,8 +1,11 @@
+from pkg_resources import require
+from backend.shared.Exceptions import ReAuthentificationNeededException
+from backend.shared.GAPITokenBundle import GAPITokenBundle
 from fastapi import FastAPI, Request, Response
 from shared.AssignmentEntry import AssignmentEntry
 from assignmentEntryRegister import assignmentEntryRegister
 from sessionmanager.main import SessionManager
-from GoogleAPITokenHandler.main import AuthFlowSource
+from GoogleAPITokenHandler.main import AuthFlowSource, construct_cledentials
 
 app = FastAPI()
 
@@ -27,31 +30,54 @@ async def register_entry(body: AssignmentEntry,response:Response, request:Reques
     # ) のようにしてリクエストを送ってください。
 
     try:
-        if "sessionToken" not in request.cookies:
+        if "refreshToken" not in request.cookies:
             response.status_code = 401
-            response.body = {
-                "msg":"sessionToken is not found"
-            }
-            return
-        assignmentEntryRegister(body,request.cookies["sessionToken"])
+            return {"msg":"refreshToken cookie is not found"}
+        if "accessToken" not in request.cookies:
+            response.status_code = 401
+            return {"msg":"accessToken cookie is not found"}
+        
+        token_bandle = GAPITokenBundle(
+            access_token=request.cookies["refreshToken"],
+            refresh_token=request.cookies["accessToken"]
+        )
+        cred = construct_cledentials(token_bandle)
+        assignmentEntryRegister(body,cred)
         response.status_code = 200
-        response.body = {}
-    except Exception as error:
-        response.status_code = 500
-        response.body = {
-            "msg":str(error)
-        }
+        return {}
+    except ReAuthentificationNeededException as e:
+        response.status_code = 401
+        return {"msg":str(e)}
 
+@app.get("/getTokens")
+async def getToken(request: Request, response: Response):
+    if "AuthFlowState" in request.cookies:
+        state = request.cookies["AuthFlowState"]
+        response.status_code = 400
+        return {"msg": "AuthFlowState cookie is not supplied."}
+    
+    targetFlow = AuthFlowSource.queue.get(state)
+    
+    try:
+        await targetFlow.issue_gapi_tokens()
+        AuthFlowSource.queue.remove(state)
+    except TimeoutError:
+        response.status_code = 408
+        return {"msg": "getting traial timeout. try again after authorizing this application."}
+    except ReAuthentificationNeededException:
+        response.status_code = 401
+        return {"msg": "code was invaild. try to re-authentificate from scrach."}
+    response.set_cookie(key="refreshToken",value=targetFlow.result.refresh_token,httponly=True,secure=True)
+    response.set_cookie(key="accessToken",value=targetFlow.result.access_token,httponly=True,secure=True)
+    
+    return {"msg": "successfully done."}
 
-@app.get("/getToken")
-async def get_token(response:Response, request:Request):
-    sessionManager = SessionManager()
-    response.status_code = 200
-    response.set_cookie(key="sessionToken", value=sessionManager.getSessionToken(),secure=True)
-    # response.body = {
-    #     "auth_url": sessionManager.getAuthURL()
-    # }
-    return response
+@app.get("/getAuthFlowState")
+def issueAuthFlow(response:Response, request:Request):
+    authFlow = AuthFlowSource()
+    response.set_cookie(key="AuthFlowState", value=authFlow.state ,secure=True)
+    
+    return {"auth_url": authFlow.get_oauth_url()}
 
 @app.get("/oauth2callback")
 async def oauth2callback(state: str, error: None|str = None, code: None|str = None):
