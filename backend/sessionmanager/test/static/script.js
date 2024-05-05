@@ -1,6 +1,4 @@
 function req() {
-  alert("b1 clicked");
-
   // fetch("http://localhost:8000/auth")
   //   .then((res) => res.json())
   //   .then((data) => {

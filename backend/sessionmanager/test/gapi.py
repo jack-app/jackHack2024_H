@@ -10,6 +10,7 @@ import google_auth_oauthlib.flow
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
+CREDS = "C:/Users/fonce/Documents/programs/gitsite/jackHack2024_H/backend/GoogleAPITokenHandler/credentials.json"
 
 
 def main():
@@ -28,7 +29,7 @@ def main():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials.json", SCOPES
+                CREDS, SCOPES
             )
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
@@ -69,7 +70,7 @@ def main():
 
 def gettoken(code):
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-        "creds/credentials.json", SCOPES
+        CREDS, SCOPES
     )
     flow.redirect_uri = "http://localhost:8000/callback"
     tok = flow.fetch_token(code=code)
@@ -78,7 +79,7 @@ def gettoken(code):
 
 def geturl():
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-        "creds/credentials.json", SCOPES
+        CREDS, SCOPES
     )
     flow.redirect_uri = "http://localhost:8000/callback"
     auth_url, _ = flow.authorization_url()

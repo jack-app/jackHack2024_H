@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.staticfiles import StaticFiles
 from typing import Optional
 from logging import getLogger, StreamHandler
@@ -48,7 +48,12 @@ async def callback(code: Optional[str] = None):
             status_code=400, detail="Code parameter is required")
 
     tok = gettoken(code)
-    return {"access_token": tok}
+
+    res = Response(content={"access_token": "tok"})
+    # res.set_cookie(key="access_token", value=tok)
+
+    return res
+    # return {"access_token": tok}
 
 if __name__ == "__main__":
     try:
