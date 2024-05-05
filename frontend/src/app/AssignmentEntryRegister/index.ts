@@ -23,7 +23,7 @@ export default class AssignmentEntryRegister {
     this.initialized = true;
   }
 
-  async regist() {
+  async regist(): Promise<boolean> {
     if (!this.initialized) {
       await this.init();
     }
@@ -31,18 +31,31 @@ export default class AssignmentEntryRegister {
     const assignments = this.tasks.map(
       (task) => new AssignmentEntry(task, this.settings.defaultTime)
     );
+    const lastUpdateDateTime = await this.getLastUpdateDateTime();
     const resps = await Promise.all(
-      assignments.map(async (assignment) => {
-        const response = await fetch('https://jack.hbenpitsu.net/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ assignment: assignment.toJson() }),
-        });
-        return response.ok;
-      })
+      assignments
+        .filter((assignment) => !assignment.isRegistered(lastUpdateDateTime))
+        .map(async (assignment) => {
+          const response = await fetch('https://jack.hbenpitsu.net/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ assignment: assignment.toJson() }),
+          });
+          return response.ok;
+        })
     );
+    await this.setLastUpdateDateTime(new Date());
     return resps.every((resp) => resp);
+  }
+
+  async getLastUpdateDateTime(): Promise<Date> {
+    const datetimeString = (await storage.get('lastUpdateTime')) as string;
+    return new Date(datetimeString);
+  }
+
+  async setLastUpdateDateTime(date: Date) {
+    await storage.save('lastUpdateTime', date.toISOString());
   }
 }
