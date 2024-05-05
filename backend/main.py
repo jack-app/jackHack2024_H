@@ -42,9 +42,9 @@ async def get_token(response:Response, request:Request):
     sessionManager = SessionManager()
     response.status_code = 200
     response.set_cookie(key="sessionToken", value=sessionManager.getSessionToken(),secure=True)
-    response.body = {
-        "auth_url": sessionManager.getAuthURL()
-    }
+    # response.body = {
+    #     "auth_url": sessionManager.getAuthURL()
+    # }
     return response
 
 @app.get("/oauth2callback")
