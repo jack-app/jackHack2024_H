@@ -1,7 +1,7 @@
 import sqlite3
 import secrets
 import datetime
-from google_api_token_getter.main import AuthFlowSource
+from GoogleAPITokenHandler.main import AuthFlowSource
 
 
 class SessionManager:

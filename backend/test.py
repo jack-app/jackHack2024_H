@@ -1,1 +1,1 @@
-import google_api_token_getter.test
+import GoogleAPITokenHandler.test

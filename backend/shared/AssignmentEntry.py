@@ -4,7 +4,7 @@ from shared.Units import Sec
 class AssignmentEntry(BaseModel):
     id: str
     title: str
-    sourseName: str
+    courseName: str
     courseId: str
-    dueData: str
+    dueDate: str
     duration: int | None #Sec
