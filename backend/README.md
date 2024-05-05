@@ -5,10 +5,10 @@ https://fastapi.tiangolo.com/ja/tutorial/
 =======
 
 `py -3.11 -m venv .venv`
-を実行して、venvをインストールする。
+を実行して、venv をインストールする。
 
-venvをインストールしたら
-`.venv\Scripts\activate.ps1`などを実行してvenvをアクティベートする
+venv をインストールしたら
+`.venv\Scripts\activate.ps1`などを実行して venv をアクティベートする
 
 そのあと
 `pip install -r backend\requirement.txt`を実行して依存関係をインストールする
@@ -18,5 +18,6 @@ venvをインストールしたら
 `cd backend`の後
 `uvicorn main:app --reload`
 
-venvの有効化を忘れずに
->>>>>>> a95ad610da10ed0d4f61bcaabdcc53747943e1e5
+venv の有効化を忘れずに
+
+> > > > > > > a95ad610da10ed0d4f61bcaabdcc53747943e1e5
