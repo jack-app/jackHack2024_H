@@ -27,7 +27,13 @@ async def register_entry(body: AssignmentEntry,response:Response, request:Reques
     # ) のようにしてリクエストを送ってください。
 
     try:
-        assignmentEntryRegister(body,request.headers["sessionToken"])
+        if "sessionToken" not in request.cookies:
+            response.status_code = 401
+            response.body = {
+                "msg":"sessionToken is not found"
+            }
+            return
+        assignmentEntryRegister(body,request.cookies["sessionToken"])
         response.status_code = 200
         response.body = {}
     except Exception as error:
