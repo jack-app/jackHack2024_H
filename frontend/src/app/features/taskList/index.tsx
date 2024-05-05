@@ -3,6 +3,7 @@ import { getAssignments } from '../../api/assignment';
 import { TaskTable, TaskRowProps } from './TaskTable';
 import TaskEntry from '../../api/task';
 import { AssignmentEntryManager } from '../../EntryManager/assignment';
+import { RegisterAssignmentOnButtonClicked } from '../../scheduler';
 
 export const TaskList = () => {
   const [assignments, setAssignments] = useState<TaskEntry[]>([]);
@@ -23,6 +24,7 @@ export const TaskList = () => {
     return {
       task: assignment,
       onClickRegister: (task) => {
+        RegisterAssignmentOnButtonClicked(task)
         console.log(task);
       },
     };
