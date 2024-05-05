@@ -12,7 +12,6 @@ print(tokenBundle.access_token)
 print(tokenBundle.refresh_token)
 
 credentials = construct_cledentials(tokenBundle)
-tokenPopper = GoogleApiTokenPopper(tokenBundle)
 
 from calenderapiwrapper.assignmentEntryRegister import assignmentEntryRegister
 from shared.AssignmentEntry import AssignmentEntry
