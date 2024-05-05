@@ -4,21 +4,24 @@ from shared.AssignmentEntry import AssignmentEntry
 from calenderapiwrapper.assignmentEntryRegister import assignmentEntryRegister
 from GoogleAPITokenHandler.main import *
 from shared.Exceptions import ReAuthentificationNeededException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse
 
 app = FastAPI()
 
 from starlette.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://accounts.google.com/*",
+        "https://tact.ac.thers.ac.jp/*"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
 )
 
 @app.get("/")
-def rootRoute():
+def rootRoute(request:Request,response:Response):
     return "You're successfully accessing to the FastAPI server."
 
 
@@ -84,8 +87,16 @@ async def oauth2callback(response:Response, error: None|str = None, code: None|s
         return {"msg":str(error)}
     response.set_cookie(key=REFRESH_TOKEN,value=tokens[REFRESH_TOKEN],httponly=True,secure=True)
     response.set_cookie(key=ACCESS_TOKEN,value=tokens[ACCESS_TOKEN],httponly=True,secure=True)
-
-    return {"msg":"success"}
+    
+    html_content = """
+    <html>
+        <body>
+            <script>window.close()</script>
+            <h1>このウィンドウは閉じて構いません。</h1>
+        </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
 
 ## GOOGLE TOKEN HANDLER ENDPOINTS ###
 
