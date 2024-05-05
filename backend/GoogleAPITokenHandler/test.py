@@ -14,6 +14,7 @@ print(tokenBundle.refresh_token)
 credentials = construct_cledentials(tokenBundle)
 
 from calenderapiwrapper.assignmentEntryRegister import assignmentEntryRegister
+
 from shared.AssignmentEntry import AssignmentEntry
 
 ae = AssignmentEntry(

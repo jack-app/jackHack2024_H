@@ -20,9 +20,7 @@ app.add_middleware(
 )
 
 @app.get("/")
-def rootRoute(response:Response, request:Request):
-    print(response)
-    print(request)
+def rootRoute(request:Request,response:Response):
     return "You're successfully accessing to the FastAPI server."
 
 @app.post("/register")
@@ -32,7 +30,7 @@ async def register_entry(body:AssignmentEntry,request:Request,response:Response)
     
     # fetch("http://***/register",
     #   {method:"POST",headers: {
-    #       'Content-Type': 'application/json',
+    #       'Content-Type': 'application/json'
     #   },
     #   body:JSON.stringify(assignmentEntry)}
     # ) のようにしてリクエストを送ってください。
@@ -55,12 +53,10 @@ async def refreshTokens(request: Request, response: Response):
     try:
         token_bandle = bundleCookie(request.cookies)
         cred = construct_cledentials(token_bandle)
-        refresh_credentials(cred)
-        response.set_cookie(key=REFRESH_TOKEN,value=token_bandle.refresh_token,httponly=True,secure=True)
-        response.set_cookie(key=ACCESS_TOKEN,value=token_bandle.access_token,httponly=True,secure=True)
-        
+        refresh(cred)
+        response.set_cookie(key=REFRESH_TOKEN,value=cred.refresh_token,httponly=True,secure=True)
+        response.set_cookie(key=ACCESS_TOKEN,value=cred.token,httponly=True,secure=True)
         return {"msg": "success"}
-    
     except ReAuthentificationNeededException as e:
         response.status_code = 401
         return {"msg":str(e)}
@@ -101,20 +97,24 @@ def issueAuthFlow(response:Response, request:Request):
     return {"auth_url": authFlow.get_oauth_url()}
 
 @app.get("/oauth2callback")
-async def oauth2callback(state: str, error: None|str = None, code: None|str = None):
+async def oauth2callback(response:Response, error: None|str = None, code: None|str = None):
     if error:
+        response.status_code = 400
         return {"msg":error}
     if code is None:
+        response.status_code = 400
         return {"msg":"code is not found"}
     try:
         AuthFlowSource.sign(state, code)
     except Exception as error:
+        response.status_code = 500
         return {"msg":str(error)}
     
     html_content = """
     <html>
         <body>
             <script>window.close()</script>
+            <h1>このウィンドウは閉じて構いません。</h1>
         </body>
     </html>
     """
