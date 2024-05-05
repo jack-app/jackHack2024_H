@@ -35,6 +35,21 @@ async def root(req: Request):
     return templates.TemplateResponse("index.html", context)
 
 
+@app.get("/close")
+async def close():
+    html_content = """
+        <html>
+            <head>
+                <title>Some HTML in here</title>
+            </head>
+            <body>
+                <script>window.close()</script>
+            </body>
+        </html>
+        """
+    return HTMLResponse(content=html_content)
+
+
 @app.get("/auth")
 async def auth():
     auth_url = geturl()
@@ -51,8 +66,15 @@ async def callback(code: Optional[str] = None):
 
     content = {"message": tok}
     res = JSONResponse(content=content)
-    res.set_cookie(key="fakesession", value="fake-cookie-session-value")
-    return res
+    res.set_cookie(key="key", value="value")
+    html_content = """
+        <html>
+            <body>
+                <script>window.close()</script>
+            </body>
+        </html>
+        """
+    return HTMLResponse(content=html_content)
 
 
 if __name__ == "__main__":
