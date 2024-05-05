@@ -4,7 +4,7 @@ from typing import Optional
 from logging import getLogger, StreamHandler
 import uvicorn
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from gapi import gettoken, geturl
 import os
@@ -49,11 +49,11 @@ async def callback(code: Optional[str] = None):
 
     tok = gettoken(code)
 
-    res = Response(content={"access_token": "tok"})
-    # res.set_cookie(key="access_token", value=tok)
-
+    content = {"message": tok}
+    res = JSONResponse(content=content)
+    res.set_cookie(key="fakesession", value="fake-cookie-session-value")
     return res
-    # return {"access_token": tok}
+
 
 if __name__ == "__main__":
     try:
