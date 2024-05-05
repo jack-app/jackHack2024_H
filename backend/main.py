@@ -1,20 +1,22 @@
 from shared.Exceptions import ReAuthentificationNeededException
-from shared.GAPITokenBundle import GAPITokenBundle
 from fastapi import FastAPI, Request, Response
 from shared.AssignmentEntry import AssignmentEntry
-from assignmentEntryRegister import assignmentEntryRegister
-from GoogleAPITokenHandler.main import AuthFlowSource, breakdown_cledentials, construct_cledentials, refresh_credentials, SIGN_QUEUE
+from calenderapiwrapper.assignmentEntryRegister import assignmentEntryRegister
+from GoogleAPITokenHandler.main import *
+from starlette.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
-from starlette.middleware.cors import CORSMiddleware # 追加
-# CORSを回避するために追加（今回の肝）
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,   # 追記により追加
-    allow_methods=["*"],      # 追記により追加
-    allow_headers=["*"]       # 追記により追加
+    allow_origins=[
+        "https://accounts.google.com/*",
+        "https://tact.ac.thers.ac.jp/*"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 @app.get("/")
@@ -22,7 +24,6 @@ def rootRoute(response:Response, request:Request):
     print(response)
     print(request)
     return "You're successfully accessing to the FastAPI server."
-
 
 @app.post("/register")
 async def register_entry(body:AssignmentEntry,request:Request,response:Response):
@@ -32,30 +33,15 @@ async def register_entry(body:AssignmentEntry,request:Request,response:Response)
     # fetch("http://***/register",
     #   {method:"POST",headers: {
     #       'Content-Type': 'application/json',
-    #       'sessionToken': 'token'
     #   },
     #   body:JSON.stringify(assignmentEntry)}
     # ) のようにしてリクエストを送ってください。
 
     try:
-        if "refreshToken" not in request.cookies:
-            response.status_code = 401
-            return {"msg":"refreshToken cookie is not found"}
-        if "accessToken" not in request.cookies:
-            response.status_code = 401
-            return {"msg":"accessToken cookie is not found"}
-        
-        token_bandle = GAPITokenBundle(
-            access_token=request.cookies["refreshToken"],
-            refresh_token=request.cookies["accessToken"]
-        )
+        token_bandle = bundleCookie(request.cookies)        
         cred = construct_cledentials(token_bandle)
-
         assignmentEntryRegister(body,cred)
-
-        response.status_code = 200
-        return {}
-    
+        return {"msg":"success"}
     except ReAuthentificationNeededException as e:
         response.status_code = 401
         return {"msg":str(e)}
@@ -67,27 +53,13 @@ async def register_entry(body:AssignmentEntry,request:Request,response:Response)
 async def refreshTokens(request: Request, response: Response):
 
     try:
-        if "refreshToken" not in request.cookies:
-            response.status_code = 401
-            return {"msg":"refreshToken cookie is not found"}
-        if "accessToken" not in request.cookies:
-            response.status_code = 401
-            return {"msg":"accessToken cookie is not found"}
-        
-        token_bandle = GAPITokenBundle(
-            access_token=request.cookies["refreshToken"],
-            refresh_token=request.cookies["accessToken"]
-        )
+        token_bandle = bundleCookie(request.cookies)
         cred = construct_cledentials(token_bandle)
-        
         refresh_credentials(cred)
-        response.status_code = 200
-
-        bundle = breakdown_cledentials(cred)
-        response.set_cookie(key="refreshToken",value=bundle.refresh_token,httponly=True,secure=True)
-        response.set_cookie(key="accessToken",value=bundle.access_token,httponly=True,secure=True)
+        response.set_cookie(key=REFRESH_TOKEN,value=token_bandle.refresh_token,httponly=True,secure=True)
+        response.set_cookie(key=ACCESS_TOKEN,value=token_bandle.access_token,httponly=True,secure=True)
         
-        return {"msg": "successfully done."}
+        return {"msg": "success"}
     
     except ReAuthentificationNeededException as e:
         response.status_code = 401
@@ -95,34 +67,36 @@ async def refreshTokens(request: Request, response: Response):
 
 @app.get("/getTokens")
 async def getTokens(request: Request, response: Response):
-    print(request.cookies)
     state = "state unspesified"
-    if "AuthFlowState" not in request.cookies:
+    if AUTH_FLOW_STATE not in request.cookies:
         response.status_code = 400
         return {"msg": "AuthFlowState cookie is not supplied."}
-    
-    state = request.cookies["AuthFlowState"]
-    targetFlow = SIGN_QUEUE.get(state)
-    
+    state = request.cookies[AUTH_FLOW_STATE]
     try:
+        targetFlow = AuthFlowSource.SIGN_QUEUE.get(state)
         await targetFlow.issue_gapi_tokens()
-        SIGN_QUEUE.remove(state)
+        AuthFlowSource.SIGN_QUEUE.remove(state)
     except TimeoutError:
         response.status_code = 408
         return {"msg": "getting traial timeout. try again after authorizing this application."}
     except ReAuthentificationNeededException:
         response.status_code = 401
         return {"msg": "code was invaild. try to re-authentificate from scrach."}
-    response.set_cookie(key="refreshToken",value=targetFlow.result.refresh_token,httponly=True,secure=True)
-    response.set_cookie(key="accessToken",value=targetFlow.result.access_token,httponly=True,secure=True)
+    except KeyError:
+        response.status_code = 400
+        return {"msg": "state is not found."}
     
-    return {"msg": "successfully done."}
+    response.set_cookie(key=REFRESH_TOKEN,value=targetFlow.result.refresh_token,httponly=True,secure=True)
+    response.set_cookie(key=ACCESS_TOKEN,value=targetFlow.result.access_token,httponly=True,secure=True)
+    
+    return {"msg": "success"}
 
 
 @app.get("/getAuthFlowState")
 def issueAuthFlow(response:Response, request:Request):
+    
     authFlow = AuthFlowSource()
-    response.set_cookie(key="AuthFlowState", value=authFlow.state ,httponly=True ,secure=True)
+    response.set_cookie(key=AUTH_FLOW_STATE, value=authFlow.state ,httponly=True ,secure=True)
     
     return {"auth_url": authFlow.get_oauth_url()}
 
@@ -134,9 +108,17 @@ async def oauth2callback(state: str, error: None|str = None, code: None|str = No
         return {"msg":"code is not found"}
     try:
         AuthFlowSource.sign(state, code)
-        return {"msg":"success"}
     except Exception as error:
         return {"msg":str(error)}
+    
+    html_content = """
+    <html>
+        <body>
+            <script>window.close()</script>
+        </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
 
 ## GOOGLE TOKEN HANDLER ENDPOINTS ###
 

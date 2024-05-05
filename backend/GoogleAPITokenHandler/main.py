@@ -7,7 +7,7 @@ import asyncio
 import datetime
 import os
 from dotenv import load_dotenv
-from google.auth.transport.requests import Request
+from google.auth.transport.requests import Request as GRequest
 import requests
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from shared.Exceptions import ReAuthentificationNeededException
@@ -21,6 +21,10 @@ FLOW = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
             scopes=['https://www.googleapis.com/auth/calendar.events']
         )
 FLOW.redirect_uri = os.environ['REDIRECT_URI']
+
+ACCESS_TOKEN = "access_token"
+REFRESH_TOKEN = "refresh_token"
+AUTH_FLOW_STATE = "auth_flow_state"
 
 class _SignQueue:
     def __init__(self, authFlow_abandoned_by = datetime.timedelta(minutes=5)):
@@ -45,9 +49,8 @@ class _SignQueue:
             except KeyError:
                 pass
 
-SIGN_QUEUE = _SignQueue()
-
 class AuthFlowSource:
+    SIGN_QUEUE = _SignQueue()
 
     def __init__(self):
         self.code = None
@@ -59,10 +62,10 @@ class AuthFlowSource:
         queueにtokenGetterとstateの組が登録されていれば、これにコードをひもづける。
         失敗した場合はValueErrorを返す。
         """
-        target = SIGN_QUEUE.get(state)
+        target = AuthFlowSource.SIGN_QUEUE.get(state)
         if target is None:
             raise ValueError(
-                f"designated state: '{state}' is not found in queue: '{AuthFlowSource.states_in_sign_queue.keys()}'"
+                f"designated state: '{state}' is not found in queue: '{AuthFlowSource.SIGN_QUEUE.keys()}'"
             )
         else:
             target.code = code
@@ -102,7 +105,7 @@ class AuthFlowSource:
             approval_prompt='force',
             state=self.state
         )
-        SIGN_QUEUE.put(state,self)
+        AuthFlowSource.SIGN_QUEUE.put(state,self)
         return authorization_url
 
 
@@ -117,31 +120,22 @@ def construct_cledentials(
         client_secret=os.environ['CLIENT_SECRET']
     )
 
-def revoke_gapi_token(tokenBundle: GAPITokenBundle):
+def revoke_gapi_token(access_token):
     requests.post('https://oauth2.googleapis.com/revoke',
-        params={'token': tokenBundle.access_token},
+        params={'token': access_token},
         headers = {'content-type': 'application/x-www-form-urlencoded'})
-
-def breakdown_cledentials(
-    cred: google.oauth2.credentials.Credentials
-) -> GAPITokenBundle:
-    return GAPITokenBundle(
-        access_token=cred.token,
-        refresh_token=cred.refresh_token
-    )
 
 def refresh_credentials(
     cred: google.oauth2.credentials.Credentials
 ):
     try:
-        cred.refresh(Request())
+        cred.refresh(GRequest())
     except RefreshError as error:
         raise ReAuthentificationNeededException("token-refresh failed. please re-authenticate.")
-        
 
-class GoogleApiTokenPopper:
-    def __init__(self, tokenBundle: GAPITokenBundle):
-        self.cred = construct_cledentials(tokenBundle)
-    def pop(self):
-        refresh_credentials(self.cred)
-        return self.cred.token
+def bundleCookie(cookie)->GAPITokenBundle:
+    if REFRESH_TOKEN not in cookie:
+        raise ReAuthentificationNeededException("refresh token cookie is not found")
+    if ACCESS_TOKEN not in cookie:
+        raise ReAuthentificationNeededException("access token cookie is not found")
+    return GAPITokenBundle(access_token=cookie[ACCESS_TOKEN],refresh_token=cookie[REFRESH_TOKEN])
