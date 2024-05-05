@@ -2,7 +2,7 @@ import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import os
 from dotenv import load_dotenv
-from google.auth.transport.requests import Request
+from google.auth.transport.requests import Request as GRequest
 import requests
 from shared.Exceptions import ReAuthentificationNeededException
 from google.auth.exceptions import RefreshError
@@ -16,8 +16,8 @@ AUTH_FLOW = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         )
 AUTH_FLOW.redirect_uri = os.environ['REDIRECT_URI']
 
-ACCESS_TOKEN="accessToken"
-REFRESH_TOKEN="refreshToken"
+ACCESS_TOKEN="access_token"
+REFRESH_TOKEN="refresh_token"
 
 def construct_cledentials(access_token,refresh_token):
     return google.oauth2.credentials.Credentials(
@@ -35,14 +35,14 @@ def revoke(access_token):
 
 def refresh(cred: google.oauth2.credentials.Credentials):
     try:
-        cred.refresh(Request())
+        cred.refresh(GRequest())
     except RefreshError as error:
         raise ReAuthentificationNeededException("token-refresh failed. please re-authenticate.")
 
 def tokensExist(cookies, response: Response):
-    if "refreshToken" not in cookies:
+    if REFRESH_TOKEN not in cookies:
         response.status_code = 401
-        raise ReAuthentificationNeededException("refreshToken cookie is not found")
-    if "accessToken" not in cookies:
+        raise ReAuthentificationNeededException("refresh_token cookie is not found")
+    if ACCESS_TOKEN not in cookies:
         response.status_code = 401
-        raise ReAuthentificationNeededException("accessToken cookie is not found")
+        raise ReAuthentificationNeededException("access_token cookie is not found")

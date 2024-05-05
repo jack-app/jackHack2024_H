@@ -1,15 +1,10 @@
 from shared.Exceptions import ReAuthentificationNeededException
 from fastapi import FastAPI, Request, Response
 from shared.AssignmentEntry import AssignmentEntry
-from assignmentEntryRegister import assignmentEntryRegister
+from calenderapiwrapper.assignmentEntryRegister import assignmentEntryRegister
 from GoogleAPITokenHandler.main import *
-from google.auth.transport.requests import Request
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from shared.Exceptions import ReAuthentificationNeededException
-from google.auth.exceptions import RefreshError
 from fastapi.responses import RedirectResponse
-from GoogleAPITokenHandler.main import AUTH_FLOW
-
 
 app = FastAPI()
 
@@ -23,9 +18,7 @@ app.add_middleware(
 )
 
 @app.get("/")
-def rootRoute(response:Response, request:Request):
-    print(response)
-    print(request)
+def rootRoute():
     return "You're successfully accessing to the FastAPI server."
 
 
@@ -36,8 +29,7 @@ async def register_entry(body:AssignmentEntry,request:Request,response:Response)
     
     # fetch("http://***/register",
     #   {method:"POST",headers: {
-    #       'Content-Type': 'application/json',
-    #       'sessionToken': 'token'
+    #       'Content-Type': 'application/json'
     #   },
     #   body:JSON.stringify(assignmentEntry)}
     # ) のようにしてリクエストを送ってください。
@@ -90,9 +82,8 @@ async def oauth2callback(response:Response, error: None|str = None, code: None|s
     except Exception as error:
         response.status_code = 500
         return {"msg":str(error)}
-    
-    response.set_cookie(key=REFRESH_TOKEN,value=tokens.refresh_token,httponly=True,secure=True)
-    response.set_cookie(key=ACCESS_TOKEN,value=tokens.token,httponly=True,secure=True)
+    response.set_cookie(key=REFRESH_TOKEN,value=tokens[REFRESH_TOKEN],httponly=True,secure=True)
+    response.set_cookie(key=ACCESS_TOKEN,value=tokens[ACCESS_TOKEN],httponly=True,secure=True)
 
     return {"msg":"success"}
 
