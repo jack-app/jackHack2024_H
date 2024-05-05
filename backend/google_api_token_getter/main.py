@@ -7,6 +7,10 @@ import datetime
 import os
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
+import requests
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from shared.Exceptions import ReAuthentificationNeededException
+from google.auth.exceptions import RefreshError
 
 load_dotenv()
 
@@ -14,7 +18,7 @@ class _SignQueue:
     def __init__(self, authFlow_abandoned_by = datetime.timedelta(minutes=5)):
         self.records = {}
         self.authFlow_abandoned_by = authFlow_abandoned_by
-    def put(self, state: str, authFlow: str):
+    def put(self, state: str, authFlow: 'AuthFlowSource'):
         self.records[state]= (authFlow,datetime.datetime.now())
 
         if len(self.records) > 50:
@@ -75,17 +79,19 @@ class AuthFlowSource:
         if self.code is None:
             raise TimeoutError("timeout. code is not set.")
         
-        tokens = self.flow.fetch_token(code=self.code)
-        self.result = GAPITokenBundle(
-            access_token=tokens["access_token"], 
-            refresh_token=tokens["refresh_token"]
-        )
-        
+        try:
+            tokens = self.flow.fetch_token(code=self.code)
+            self.result = GAPITokenBundle(
+                access_token=tokens["access_token"], 
+                refresh_token=tokens["refresh_token"]
+            )
+        except InvalidGrantError as error:
+            raise ReAuthentificationNeededException("given code was invalid. please re-authenticate.")
         return self.result
 
-    def get_credentials(self, timeout: MilliSec = MilliSec(10000), interval: MilliSec = MilliSec(1000)) -> google.oauth2.credentials.Credentials:
+    async def get_credentials(self, timeout: MilliSec = MilliSec(10000), interval: MilliSec = MilliSec(1000)) -> google.oauth2.credentials.Credentials:
         if not self.flow.credentials:
-            self.issue_gapi_tokens(timeout, interval)
+            await self.issue_gapi_tokens(timeout, interval)
         return self.flow.credentials
 
     def get_oauth_url(self) -> str:
@@ -109,6 +115,11 @@ def construct_cledentials(
         client_secret=os.environ['CLIENT_SECRET']
     )
 
+def revoke_gapi_token(tokenBundle: GAPITokenBundle):
+    requests.post('https://oauth2.googleapis.com/revoke',
+        params={'token': tokenBundle.access_token},
+        headers = {'content-type': 'application/x-www-form-urlencoded'})
+
 def breakdown_cledentials(
     cred: google.oauth2.credentials.Credentials
 ) -> GAPITokenBundle:
@@ -121,5 +132,8 @@ class GoogleApiTokenPopper:
     def __init__(self, tokenBundle: GAPITokenBundle):
         self.cred = construct_cledentials(tokenBundle)
     def pop(self):
-        self.cred.refresh(Request())
+        try:
+            self.cred.refresh(Request())
+        except RefreshError as error:
+            raise ReAuthentificationNeededException("token-refresh failed. please re-authenticate.")
         return self.cred.token

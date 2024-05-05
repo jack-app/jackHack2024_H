@@ -71,7 +71,7 @@ class CalenderEventGenerator:
         """
         課題を空いている時間帯に押し込む
         event = {
-            'summary': task.title,
+            'summary': task.title
             'description': f"{task.courseName}, {task.courseId}, {task.dueDate}",
             'start': {
                 'dateTime': task.start,
