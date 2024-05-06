@@ -98,10 +98,6 @@ export default class AssignmentEntryRegister {
       json.duration ? json.duration : 60 //なぜかnullが入る
     );
     console.log(JSON.stringify(body.toJson()));
-    const jsonData = body.toJson();
-    // '%Y-%m-%d %H:%M:%S'
-    alert(jsonData.dueDate);
-    alert(JSON.stringify(body.toJson()));
     const response = await fetch('https://jack.hbenpitsu.net/register', {
       method: 'POST',
       headers: {
