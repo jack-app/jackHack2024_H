@@ -5,8 +5,13 @@ from dotenv import load_dotenv
 from google.auth.transport.requests import Request as GRequest
 import requests
 from shared.Exceptions import ReAuthentificationNeededException
+from shared.Units import MilliSec
+from shared.GAPITokenBundle import GAPITokenBundle
 from google.auth.exceptions import RefreshError
-from fastapi import Response
+from datetime import datetime
+import asyncio
+import secrets
+from google.auth.exceptions import InvalidGrantError
 
 load_dotenv('./GoogleAPITokenHandler/.env')
 
@@ -83,7 +88,7 @@ class AuthFlowSource:
             raise TimeoutError("timeout. code is not set.")
         
         try:
-            tokens = FLOW.fetch_token(code=self.code)
+            tokens = AUTH_FLOW.fetch_token(code=self.code)
             self.result = GAPITokenBundle(
                 access_token=tokens["access_token"], 
                 refresh_token=tokens["refresh_token"]
@@ -93,7 +98,7 @@ class AuthFlowSource:
         return self.result
 
     def get_oauth_url(self) -> str:
-        authorization_url, state = FLOW.authorization_url(
+        authorization_url, state = AUTH_FLOW.authorization_url(
             accsess_type='offline',
             include_granted_scopes='true',
             approval_prompt='force',
