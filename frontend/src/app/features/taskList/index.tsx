@@ -31,7 +31,7 @@ export const TaskList = () => {
         if (ok) {
           alert('登録しました');
         } else {
-          alert('登録に失敗しました');
+          alert('登録に失敗しました。認証が完了しているか確認してください。');
         }
       },
     };

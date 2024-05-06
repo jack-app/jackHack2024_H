@@ -6,7 +6,7 @@ import AssignmentEntry from './assignment';
 class RequiredAssignmentEntry {
   readonly id: string;
   readonly title: string;
-  readonly dueDate: Date;
+  readonly dueDate: string;
   readonly courseName: string;
   readonly courseId: string;
   readonly duration: number;
@@ -22,7 +22,11 @@ class RequiredAssignmentEntry {
     this.title = title;
     this.courseName = courseName;
     this.courseId = courseId;
-    this.dueDate = dueDate;
+    // if (dueDate < new Date()){
+    //   dueDate = new Date( Date.now() + 1000 * 60 * 60 * 24 );
+    // }
+    // this.dueDate = `${dueDate.getFullYear()}-${dueDate.getMonth() + 1}-${dueDate.getDate()} ${dueDate.getHours()}:${dueDate.getMinutes()}:${dueDate.getSeconds()}`;
+    this.dueDate = dueDate.toJSON();
     this.duration = duration;
   }
   toJson() {
@@ -99,10 +103,13 @@ export default class AssignmentEntryRegister {
     const response = await fetch('https://jack.hbenpitsu.net/register', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(body.toJson()),
+      body: JSON.stringify(body.toJson())
     });
+    console.log(response);
+    alert(response.status)
+    alert((await response.json()).msg)
     return response.ok;
   }
 }
