@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import TaskEntry from '../api/task';
 import { AssignmentEntryManager } from '../EntryManager/assignment';
 import { storage } from '../storageManager';
@@ -22,11 +23,7 @@ class RequiredAssignmentEntry {
     this.title = title;
     this.courseName = courseName;
     this.courseId = courseId;
-    // if (dueDate < new Date()){
-    //   dueDate = new Date( Date.now() + 1000 * 60 * 60 * 24 );
-    // }
-    // this.dueDate = `${dueDate.getFullYear()}-${dueDate.getMonth() + 1}-${dueDate.getDate()} ${dueDate.getHours()}:${dueDate.getMinutes()}:${dueDate.getSeconds()}`;
-    this.dueDate = dueDate.toJSON();
+    this.dueDate = dayjs(dueDate).format('YYYY-MM-DD HH:mm:ss');
     this.duration = duration;
   }
   toJson() {
@@ -101,6 +98,10 @@ export default class AssignmentEntryRegister {
       json.duration ? json.duration : 60 //なぜかnullが入る
     );
     console.log(JSON.stringify(body.toJson()));
+    const jsonData = body.toJson();
+    // '%Y-%m-%d %H:%M:%S'
+    alert(jsonData.dueDate);
+    alert(JSON.stringify(body.toJson()));
     const response = await fetch('https://jack.hbenpitsu.net/register', {
       method: 'POST',
       headers: {
