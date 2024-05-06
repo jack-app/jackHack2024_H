@@ -25,8 +25,12 @@ export const TaskList = () => {
     return {
       task: assignment,
       onClickRegister: async (task) => {
-        const defalutTime = (await storage.get('defaultTime')) as string;
-        const assignmentEntry = new AssignmentEntry(task, defalutTime ? parseInt(defalutTime) : 0);
+        let duration = 60;
+        const defalutTime = await storage.get('defaultTime');
+        if (defalutTime) {
+          duration = parseInt(String(defalutTime));
+        }
+        const assignmentEntry = new AssignmentEntry(task, duration);
         const ok = await AssignmentEntryRegister.register(assignmentEntry);
         if (ok) {
           alert('登録しました');
