@@ -7,8 +7,10 @@ import { version } from '../package.json';
 
 const manifest = defineManifest(async (env) => ({
   manifest_version: 3,
-  name: `${env.mode === 'development' ? '[Dev] ' : ''}Browser Extension TypeScript & React Starter`,
-  description: 'Browser Extension, TypeScript, React',
+  name: `${
+    env.mode === 'development' ? '[Dev] ' : ''
+  }カレンダーに自動で予定を追加して危機感煽ってくるヤツ`,
+  description: 'カレンダーに自動で予定を追加して危機感煽ってくるヤツ です。',
   version,
   background: {
     service_worker: 'background/index.ts',
