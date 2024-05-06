@@ -16,8 +16,9 @@ export default class EndPoints {
     return content;
   }
 
-  static async getTokens() {
-    await fetch(`https://${EndPoints.domain}/getTokens`);
+  static async getTokens(): Promise<number> {
+    const resp = await fetch(`https://${EndPoints.domain}/getTokens`);
+    return resp.status;
   }
 
   static async refreshTokens() {
@@ -32,10 +33,15 @@ export default class EndPoints {
 }
 
 class TokenGetter {
-  async startAuthentication() {
+  static async startAuthentication() {
     await TokenGetter.openAuthWindow();
-    await new Promise((resolve) => setTimeout(resolve, 10 * 1000)); //ms
-    await EndPoints.getTokens();
+    for (;;) {
+      await new Promise((resolve) => setTimeout(resolve, 1 * 1000)); //ms
+      const status = await EndPoints.getTokens();
+      if (status != 408) {
+        break;
+      }
+    }
   }
   static async openAuthWindow() {
     const response = await EndPoints.getAuthFlowState();
@@ -43,5 +49,5 @@ class TokenGetter {
   }
 }
 
-export const authenticate = new TokenGetter().startAuthentication;
+export const authenticate = TokenGetter.startAuthentication;
 export const refreshTokens = EndPoints.refreshTokens;

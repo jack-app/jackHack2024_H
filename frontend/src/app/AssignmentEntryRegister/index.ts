@@ -90,27 +90,27 @@ export default class AssignmentEntryRegister {
     await storage.save('lastUpdateTime', date.toISOString());
   }
 
-  static async register(assignment: AssignmentEntry): Promise<boolean> {
+  static async register(assignment: AssignmentEntry): Promise<number> {
     const json = assignment.toJson();
     const body = new RequiredAssignmentEntry(
-      json.id, 
-      json.title, 
-      json.dueDate, 
-      json.courseName, 
-      json.courseId, 
+      json.id,
+      json.title,
+      json.dueDate,
+      json.courseName,
+      json.courseId,
       json.duration ? json.duration : 60 //なぜかnullが入る
-    )
-    console.log(JSON.stringify(body.toJson()))
+    );
+    console.log(JSON.stringify(body.toJson()));
     const response = await fetch('https://jack.hbenpitsu.net/register', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body.toJson())
+      body: JSON.stringify(body.toJson()),
     });
     console.log(response);
-    console.log(response.status)
-    console.log((await response.json()).msg)
-    return response.ok;
+    console.log(response.status);
+    console.log((await response.json()).msg);
+    return response.status;
   }
 }

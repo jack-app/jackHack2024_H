@@ -5,6 +5,7 @@ import { AssignmentEntryManager } from '../../EntryManager/assignment';
 import AssignmentEntry from '../../AssignmentEntryRegister/assignment';
 import { storage } from '../../storageManager';
 import AssignmentEntryRegister from '../../AssignmentEntryRegister';
+import { authenticate } from '../../tokenHandler';
 
 export const TaskList = () => {
   const [assignments, setAssignments] = useState<TaskEntry[]>([]);
@@ -25,13 +26,20 @@ export const TaskList = () => {
     return {
       task: assignment,
       onClickRegister: async (task) => {
-        const defalutTime = (await storage.get('defaultTime')) as string;
-        const assignmentEntry = new AssignmentEntry(task, defalutTime ? parseInt(defalutTime) : 0);
-        const ok = await AssignmentEntryRegister.register(assignmentEntry);
-        if (ok) {
+        let duration = 60;
+        const defalutTime = await storage.get('defaultTime');
+        if (defalutTime) {
+          duration = parseInt(String(defalutTime));
+        }
+        const assignmentEntry = new AssignmentEntry(task, duration);
+        const status = await AssignmentEntryRegister.register(assignmentEntry);
+        if (status == 200) {
           alert('登録しました');
-        } else {
+        } else if (status == 401) {
           alert('登録に失敗しました。認証が完了しているか確認してください。');
+          await authenticate();
+        } else {
+          alert('登録に失敗しました。');
         }
       },
     };
