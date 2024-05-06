@@ -1,7 +1,42 @@
+import dayjs from 'dayjs';
 import TaskEntry from '../api/task';
 import { AssignmentEntryManager } from '../EntryManager/assignment';
 import { storage } from '../storageManager';
 import AssignmentEntry from './assignment';
+
+class RequiredAssignmentEntry {
+  readonly id: string;
+  readonly title: string;
+  readonly dueDate: string;
+  readonly courseName: string;
+  readonly courseId: string;
+  readonly duration: number;
+  constructor(
+    id: string,
+    title: string,
+    dueDate: Date,
+    courseName: string,
+    courseId: string,
+    duration: number
+  ) {
+    this.id = id;
+    this.title = title;
+    this.courseName = courseName;
+    this.courseId = courseId;
+    this.dueDate = dayjs(dueDate).format('YYYY-MM-DD HH:mm:ss');
+    this.duration = duration;
+  }
+  toJson() {
+    return {
+      id: this.id,
+      title: this.title,
+      courseName: this.courseName,
+      courseId: this.courseId,
+      dueDate: this.dueDate,
+      duration: this.duration,
+    };
+  }
+}
 
 export default class AssignmentEntryRegister {
   readonly manager = new AssignmentEntryManager();
@@ -23,7 +58,7 @@ export default class AssignmentEntryRegister {
     this.initialized = true;
   }
 
-  async regist() {
+  async regist(): Promise<boolean> {
     if (!this.initialized) {
       await this.init();
     }
@@ -31,18 +66,52 @@ export default class AssignmentEntryRegister {
     const assignments = this.tasks.map(
       (task) => new AssignmentEntry(task, this.settings.defaultTime)
     );
+    const lastUpdateDateTime = await this.getLastUpdateDateTime();
     const resps = await Promise.all(
-      assignments.map(async (assignment) => {
-        const response = await fetch('https://jack.hbenpitsu.net/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ assignment: assignment.toJson() }),
-        });
-        return response.ok;
-      })
+      assignments
+        .filter((assignment) => !assignment.isRegistered(lastUpdateDateTime))
+        .map(async (assignment) => {
+          return await AssignmentEntryRegister.register(assignment);
+        })
     );
+    await this.setLastUpdateDateTime(new Date());
     return resps.every((resp) => resp);
+  }
+
+  async getLastUpdateDateTime(): Promise<Date> {
+    const datetimeString = (await storage.get('lastUpdateTime')) as string;
+    return new Date(datetimeString);
+  }
+
+  async setLastUpdateDateTime(date: Date) {
+    await storage.save('lastUpdateTime', date.toISOString());
+  }
+
+  static async register(assignment: AssignmentEntry): Promise<number> {
+    const json = assignment.toJson();
+    const body = new RequiredAssignmentEntry(
+      json.id,
+      json.title,
+      json.dueDate,
+      json.courseName,
+      json.courseId,
+      json.duration ? json.duration : 60 //なぜかnullが入る
+    );
+    console.log(JSON.stringify(body.toJson()));
+    const jsonData = body.toJson();
+    // '%Y-%m-%d %H:%M:%S'
+    alert(jsonData.dueDate);
+    alert(JSON.stringify(body.toJson()));
+    const response = await fetch('https://jack.hbenpitsu.net/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body.toJson()),
+    });
+    console.log(response);
+    console.log(response.status);
+    console.log((await response.json()).msg);
+    return response.status;
   }
 }

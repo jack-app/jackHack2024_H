@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
-import { getAssignments } from '../../api/assignment';
 import { TaskTable, TaskRowProps } from './TaskTable';
 import TaskEntry from '../../api/task';
 import { AssignmentEntryManager } from '../../EntryManager/assignment';
+import AssignmentEntry from '../../AssignmentEntryRegister/assignment';
+import { storage } from '../../storageManager';
+import AssignmentEntryRegister from '../../AssignmentEntryRegister';
+import { authenticate } from '../../tokenHandler';
 
 export const TaskList = () => {
   const [assignments, setAssignments] = useState<TaskEntry[]>([]);
@@ -22,8 +25,22 @@ export const TaskList = () => {
   const taskList: TaskRowProps[] = assignments.map((assignment) => {
     return {
       task: assignment,
-      onClickRegister: (task) => {
-        console.log(task);
+      onClickRegister: async (task) => {
+        let duration = 60;
+        const defalutTime = await storage.get('defaultTime');
+        if (defalutTime) {
+          duration = parseInt(String(defalutTime));
+        }
+        const assignmentEntry = new AssignmentEntry(task, duration);
+        const status = await AssignmentEntryRegister.register(assignmentEntry);
+        if (status == 200) {
+          alert('登録しました');
+        } else if (status == 401) {
+          alert('登録に失敗しました。認証が完了しているか確認してください。');
+          await authenticate();
+        } else {
+          alert('登録に失敗しました。');
+        }
       },
     };
   });

@@ -7,4 +7,4 @@ class AssignmentEntry(BaseModel):
     courseName: str
     courseId: str
     dueDate: str
-    duration: int | None #Sec
+    duration: int #Min
