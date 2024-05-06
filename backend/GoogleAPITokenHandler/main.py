@@ -111,10 +111,9 @@ class AuthFlowSource:
 def construct_cledentials(
     tokenBundle: GAPITokenBundle
 ):
-def construct_cledentials(access_token,refresh_token):
     return google.oauth2.credentials.Credentials(
-        access_token,
-        refresh_token=refresh_token,
+        tokenBundle.access_token,
+        refresh_token=tokenBundle.refresh_token,
         token_uri='https://oauth2.googleapis.com/token',
         client_id=os.environ['CLIENT_ID'],
         client_secret=os.environ['CLIENT_SECRET']
