@@ -1,19 +1,46 @@
-## 開発環境のセットアップ
+# 環境
 
-https://fastapi.tiangolo.com/ja/tutorial/
+## セットアップ
+
+### windows
 
 `py -3.11 -m venv .venv`
-を実行して、venvをインストールする。
+を実行して、venvをインストールする。そのあと
+`pip install -r requirements-windows.txt`
+を実行して依存関係をインストールする
 
-venvをインストールしたら
-`.venv\Scripts\activate.ps1`などを実行してvenvをアクティベートする
+### ubuntu
 
-そのあと
-`pip install -r backend\requirement.txt`を実行して依存関係をインストールする
+`python3.11 -m venv .venv`
+を実行して、venvをインストールする。そのあと
+`pip install -r requirements-ubuntu.txt`
+を実行して依存関係をインストールする
 
-## サーバーを立てる
+## サーバーの起動
 
-`cd backend`の後
+カレントディレクトリを`backend`(このREADME)があるファイルにして、
 `uvicorn main:app --reload`
 
-venvの有効化を忘れずに
+# 構成
+
+## 概要
+
+### DEPLOY_SETTING
+
+デプロイする際に必要な設定や認証情報の設置場所であり、
+これら情報を定数として提供する。
+
+### main *ENTRYPOINT
+
+main: *エントリーポイント
+
+依存関係を規定する。
+サーバーを設定する。
+
+## エラーハンドリング
+
+依存先パッケージはパッケージ内の
+`exceptions.py`
+に定義される例外を返送する可能性がある。
+
+エラーはどこでも送出される可能性があるが、エンドポイントを直接定義する関数において、フロント側へのレスポンスに変換される。
