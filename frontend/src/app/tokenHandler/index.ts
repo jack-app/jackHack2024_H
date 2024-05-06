@@ -17,10 +17,9 @@ export default class EndPoints {
     return content;
   }
 
-  static async getTokens(): Promise<number> {
-    console.log('gettoken');
+  static async getTokens(): Promise<Response> {
     const resp = await fetch(`https://${EndPoints.domain}/getTokens`);
-    return resp.status;
+    return resp;
   }
 
   static async refreshTokens() {
@@ -42,8 +41,11 @@ class TokenGetter {
     await TokenGetter.openAuthWindow();
     for (;;) {
       await new Promise((resolve) => setTimeout(resolve, 1 * 1000)); //ms
-      const status = await EndPoints.getTokens();
-      if (status != 408) {
+      const response = await EndPoints.getTokens();
+      console.log(response.status);
+      console.log(response.statusText);
+      console.log((await response.json()).msg);
+      if (response.status != 408) {
         break;
       }
     }
@@ -51,7 +53,7 @@ class TokenGetter {
   static async openAuthWindow() {
     console.log('openauthwindow');
     const response = await EndPoints.getAuthFlowState();
-    window.open(response.auth_url, '_blank', 'tabname');
+    window.open(response.auth_url, '_blank', 'authentication');
   }
 }
 
