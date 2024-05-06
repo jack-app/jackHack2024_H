@@ -37,7 +37,7 @@ export const TaskList = () => {
           alert('登録しました');
         } else if (status == 401) {
           alert('登録に失敗しました。認証が完了しているか確認してください。');
-          authenticate();
+          await authenticate();
         } else {
           alert('登録に失敗しました。');
         }
