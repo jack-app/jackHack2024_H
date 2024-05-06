@@ -3,10 +3,10 @@ from fastapi.responses import HTMLResponse
 from fastapi import Request, Response
 from google_auth_oauthlib.flow import Flow
 from DEPLOY_SETTING import REDIRECT_URI,CREDENTIAL_FILE_PATH
-from GoogleAPITokenHandler.tokenBundle import GoogleAPITokenBundle
-from GoogleAPITokenHandler.literals import REFRESH_TOKEN, ACCESS_TOKEN, AUTH_FLOW_STATE
-from GoogleAPITokenHandler.exceptions import ReAuthenticationRequired,StateNotExists,TokenNotFound
-from GoogleAPITokenHandler.authFlowState import issueStateToQueue, signStateQueue, popCode
+from .tokenBundle import GoogleAPITokenBundle
+from .literals import REFRESH_TOKEN, ACCESS_TOKEN, AUTH_FLOW_STATE
+from .exceptions import ReAuthenticationRequired,StateNotExists,TokenNotFound
+from .authFlowState import issueStateToQueue, signStateQueue, popCode
 from oauthlib.oauth2 import InvalidGrantError
 
 class GoogleAPITokenHandler:

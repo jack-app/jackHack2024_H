@@ -1,6 +1,6 @@
-from GoogleAPITokenHandler.literals import REFRESH_TOKEN, ACCESS_TOKEN
+from .literals import REFRESH_TOKEN, ACCESS_TOKEN
 from DEPLOY_SETTING import CLIENT_ID, CLIENT_SECRET
-from GoogleAPITokenHandler.exceptions import TokenNotFound, ReAuthenticationRequired
+from .exceptions import TokenNotFound, ReAuthenticationRequired
 from google.oauth2.credentials import Credentials
 import requests
 from google.auth.transport.requests import Request as GRequest

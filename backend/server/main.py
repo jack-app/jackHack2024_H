@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 class Server:
-    def __init__(self):
-        self.APP = FastAPI()
+    def __init__(self, app:FastAPI=FastAPI()):
+        self.APP = app
         self.APP.add_middleware(
             CORSMiddleware,
             allow_origins=[

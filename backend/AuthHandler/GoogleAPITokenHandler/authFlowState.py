@@ -1,5 +1,5 @@
 from secrets import token_hex
-from GoogleAPITokenHandler.exceptions import StateNotExists
+from .exceptions import StateNotExists
 from asyncio import sleep, get_running_loop
 from datetime import datetime
 from typing import Dict
@@ -33,10 +33,8 @@ async def __cleanUp():
         except KeyError: pass
         await sleep(0.1) # to allow other tasks to run
 
-def issueStateToQueue(state=None):
+def issueStateToQueue(state=token_hex()):
     global _QUEUE
-    if state is None:
-        state = token_hex()
     _QUEUE[state] = Entry()
     if len(_QUEUE) > _QUEUE_MAX_SIZE:
         get_running_loop().create_task(__cleanUp())

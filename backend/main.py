@@ -1,15 +1,14 @@
 from fastapi import FastAPI, Request, Response
 from shared.AssignmentEntry import AssignmentEntry
 from calenderapiwrapper.assignmentEntryRegister import assignmentEntryRegister
-from starlette.middleware.cors import CORSMiddleware
-from GoogleAPITokenHandler import GoogleAPITokenHandler
+from AuthHandler.GoogleAPITokenHandler import GoogleAPITokenHandler
 from server import Server
 
 serv = Server()
 GoogleAPITokenHandler(serv.APP)
 
-from GoogleAPITokenHandler.tokenBundle import GoogleAPITokenBundle
-from GoogleAPITokenHandler.exceptions import TokenNotFound, ReAuthenticationRequired
+from AuthHandler.GoogleAPITokenHandler.tokenBundle import GoogleAPITokenBundle
+from AuthHandler.GoogleAPITokenHandler.exceptions import TokenNotFound, ReAuthenticationRequired
 app = serv.APP
 @app.post("/register")
 async def register_entry(body:AssignmentEntry,request:Request,response:Response):
@@ -36,4 +35,4 @@ async def register_entry(body:AssignmentEntry,request:Request,response:Response)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, port="61000")
+    uvicorn.run(app, port="8000")
