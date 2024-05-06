@@ -17,25 +17,30 @@ import secrets
 load_dotenv('./GoogleAPITokenHandler/.env')
 
 FLOW = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
-            './GoogleAPITokenHandler/credentials.json',
-            scopes=['https://www.googleapis.com/auth/calendar.events']
-        )
+    './GoogleAPITokenHandler/credentials.json',
+    scopes=['https://www.googleapis.com/auth/calendar.events']
+)
 FLOW.redirect_uri = os.environ['REDIRECT_URI']
 
+
 class _SignQueue:
-    def __init__(self, authFlow_abandoned_by = datetime.timedelta(minutes=5)):
+    def __init__(self, authFlow_abandoned_by=datetime.timedelta(minutes=5)):
         self.records = {}
         self.authFlow_abandoned_by = authFlow_abandoned_by
+
     def put(self, state: str, authFlow: 'AuthFlowSource'):
-        self.records[state]= (authFlow,datetime.datetime.now())
+        self.records[state] = (authFlow, datetime.datetime.now())
 
         if len(self.records) > 50:
             asyncio.create_task(self.clean_up())
+
     def get(self, state):
         response = self.records[state][0]
         return response
+
     def remove(self, state):
         del self.records[state]
+
     async def clean_up(self):
         for key in self.records.keys():
             try:
@@ -45,7 +50,9 @@ class _SignQueue:
             except KeyError:
                 pass
 
+
 SIGN_QUEUE = _SignQueue()
+
 
 class AuthFlowSource:
 
@@ -81,18 +88,19 @@ class AuthFlowSource:
             if self.code is not None:
                 break
             await asyncio.sleep(interval.toSec())
-        
+
         if self.code is None:
             raise TimeoutError("timeout. code is not set.")
-        
+
         try:
             tokens = FLOW.fetch_token(code=self.code)
             self.result = GAPITokenBundle(
-                access_token=tokens["access_token"], 
+                access_token=tokens["access_token"],
                 refresh_token=tokens["refresh_token"]
             )
         except InvalidGrantError:
-            raise ReAuthentificationNeededException("given code was invalid. please re-authenticate.")
+            raise ReAuthentificationNeededException(
+                "given code was invalid. please re-authenticate.")
         return self.result
 
     def get_oauth_url(self) -> str:
@@ -102,7 +110,7 @@ class AuthFlowSource:
             approval_prompt='force',
             state=self.state
         )
-        SIGN_QUEUE.put(state,self)
+        SIGN_QUEUE.put(state, self)
         return authorization_url
 
 
@@ -117,10 +125,12 @@ def construct_cledentials(
         client_secret=os.environ['CLIENT_SECRET']
     )
 
+
 def revoke_gapi_token(tokenBundle: GAPITokenBundle):
     requests.post('https://oauth2.googleapis.com/revoke',
-        params={'token': tokenBundle.access_token},
-        headers = {'content-type': 'application/x-www-form-urlencoded'})
+                  params={'token': tokenBundle.access_token},
+                  headers={'content-type': 'application/x-www-form-urlencoded'})
+
 
 def breakdown_cledentials(
     cred: google.oauth2.credentials.Credentials
@@ -130,18 +140,21 @@ def breakdown_cledentials(
         refresh_token=cred.refresh_token
     )
 
+
 def refresh_credentials(
     cred: google.oauth2.credentials.Credentials
 ):
     try:
         cred.refresh(Request())
     except RefreshError as error:
-        raise ReAuthentificationNeededException("token-refresh failed. please re-authenticate.")
-        
+        raise ReAuthentificationNeededException(
+            "token-refresh failed. please re-authenticate.")
+
 
 class GoogleApiTokenPopper:
     def __init__(self, tokenBundle: GAPITokenBundle):
         self.cred = construct_cledentials(tokenBundle)
+
     def pop(self):
         refresh_credentials(self.cred)
         return self.cred.token
