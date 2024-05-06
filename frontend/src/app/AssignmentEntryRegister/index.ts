@@ -33,9 +33,9 @@ class RequiredAssignmentEntry {
     return {
       id: this.id,
       title: this.title,
-      dueDate: this.dueDate,
       courseName: this.courseName,
       courseId: this.courseId,
+      dueDate: this.dueDate,
       duration: this.duration,
     };
   }
@@ -98,8 +98,9 @@ export default class AssignmentEntryRegister {
       json.dueDate, 
       json.courseName, 
       json.courseId, 
-      json.duration
+      json.duration ? json.duration : 60 //なぜかnullが入る
     )
+    console.log(JSON.stringify(body.toJson()))
     const response = await fetch('https://jack.hbenpitsu.net/register', {
       method: 'POST',
       headers: {
@@ -108,8 +109,8 @@ export default class AssignmentEntryRegister {
       body: JSON.stringify(body.toJson())
     });
     console.log(response);
-    alert(response.status)
-    alert((await response.json()).msg)
+    console.log(response.status)
+    console.log((await response.json()).msg)
     return response.ok;
   }
 }
