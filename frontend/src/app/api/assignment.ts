@@ -32,7 +32,8 @@ export const getAssignments = async (): Promise<TaskEntry[]> => {
     const tasks = new TaskEntry(
       assignment['entityId'],
       assignment['entityTitle'],
-      assignment['dueTimeString'],
+      new Date(assignment['openTime']),
+      new Date(assignment['dueTime']),
       course.name,
       course.id
     );

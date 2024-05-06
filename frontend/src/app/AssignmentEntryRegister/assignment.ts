@@ -7,6 +7,9 @@ export default class AssignmentEntry {
     this.task = task;
     this.duration = duration;
   }
+  isRegistered(date: Date) {
+    return this.task.openTime <= date;
+  }
   toJson() {
     return {
       ...this.task.toJson(),

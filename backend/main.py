@@ -108,7 +108,7 @@ def issueAuthFlow(response: Response, request: Request):
 
 
 @app.get("/oauth2callback")
-async def oauth2callback(response: Response, error: None | str = None, code: None | str = None):
+async def oauth2callback(response: Response, state: str, error: None | str = None, code: None | str = None):
     if error:
         response.status_code = 400
         return {"msg": error}
