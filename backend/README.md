@@ -2,21 +2,45 @@
 
 ## セットアップ
 
+### windows
+
 `py -3.11 -m venv .venv`
-を実行して、venvをインストールする。
-そのあと
-`pip install -r requirement.txt`を実行して依存関係をインストールする
+を実行して、venvをインストールする。そのあと
+`pip install -r requirements-windows.txt`
+を実行して依存関係をインストールする
+
+### ubuntu
+
+`python3.11 -m venv .venv`
+を実行して、venvをインストールする。そのあと
+`pip install -r requirements-ubuntu.txt`
+を実行して依存関係をインストールする
 
 ## サーバーの起動
 
-`cd backend`の後
+カレントディレクトリを`backend`(このREADME)があるファイルにして、
 `uvicorn main:app --reload`
-
-venvの有効化を忘れずに
 
 # 構成
 
-## main
+## 概要
+
+### DEPLOY_SETTING
+
+デプロイする際に必要な設定や認証情報の設置場所であり、
+これら情報を定数として提供する。
+
+### main *ENTRYPOINT
 
 main: *エントリーポイント
+
 依存関係を規定する。
+サーバーを設定する。
+
+## エラーハンドリング
+
+依存先パッケージはパッケージ内の
+`exceptions.py`
+に定義される例外を返送する可能性がある。
+
+エラーはどこでも送出される可能性があるが、エンドポイントを直接定義する関数において、フロント側へのレスポンスに変換される。
