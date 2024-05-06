@@ -1,16 +1,16 @@
-from GAPITokenHandler.literals import REFRESH_TOKEN, ACCESS_TOKEN
+from GoogleAPITokenHandler.literals import REFRESH_TOKEN, ACCESS_TOKEN
 from DEPLOY_SETTING import CLIENT_ID, CLIENT_SECRET
-from GAPITokenHandler.exceptions import TokenNotFound, ReAuthenticationRequired
+from GoogleAPITokenHandler.exceptions import TokenNotFound, ReAuthenticationRequired
 from google.oauth2.credentials import Credentials
 import requests
 from google.auth.transport.requests import Request as GRequest
 from google.auth.exceptions import RefreshError
 
-class GAPITokenBundle:
+class GoogleAPITokenBundle:
     @staticmethod
     def from_dict(d: dict):
         try:
-            return GAPITokenBundle(d[ACCESS_TOKEN], d[REFRESH_TOKEN])
+            return GoogleAPITokenBundle(d[ACCESS_TOKEN], d[REFRESH_TOKEN])
         except KeyError as e:
             raise TokenNotFound(e)
 

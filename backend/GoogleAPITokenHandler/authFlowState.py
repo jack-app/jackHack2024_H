@@ -1,5 +1,5 @@
 from secrets import token_hex
-from GAPITokenHandler.exceptions import StateNotExists
+from GoogleAPITokenHandler.exceptions import StateNotExists
 from asyncio import sleep, get_running_loop
 from datetime import datetime
 from typing import Dict

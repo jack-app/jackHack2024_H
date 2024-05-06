@@ -3,13 +3,13 @@ from fastapi.responses import HTMLResponse
 from fastapi import Request, Response
 from google_auth_oauthlib.flow import Flow
 from DEPLOY_SETTING import REDIRECT_URI,CREDENTIAL_FILE_PATH
-from GAPITokenHandler.tokenBundle import GAPITokenBundle
-from GAPITokenHandler.literals import REFRESH_TOKEN, ACCESS_TOKEN, AUTH_FLOW_STATE
-from GAPITokenHandler.exceptions import ReAuthenticationRequired,StateNotExists,TokenNotFound
-from GAPITokenHandler.authFlowState import issueStateToQueue, signStateQueue, popCode
+from GoogleAPITokenHandler.tokenBundle import GoogleAPITokenBundle
+from GoogleAPITokenHandler.literals import REFRESH_TOKEN, ACCESS_TOKEN, AUTH_FLOW_STATE
+from GoogleAPITokenHandler.exceptions import ReAuthenticationRequired,StateNotExists,TokenNotFound
+from GoogleAPITokenHandler.authFlowState import issueStateToQueue, signStateQueue, popCode
 from oauthlib.oauth2 import InvalidGrantError
 
-class GAPITokenHandler:
+class GoogleAPITokenHandler:
     def __init__(self, app: FastAPI):
         self.APP = app
         self.AUTH_FLOW = Flow.from_client_secrets_file(
@@ -99,7 +99,7 @@ class GAPITokenHandler:
         @self.APP.get("/refreshTokens")
         async def refreshTokens(request: Request, response: Response):
             try:
-                gapibundle = GAPITokenBundle.from_dict(request.cookies)
+                gapibundle = GoogleAPITokenBundle.from_dict(request.cookies)
                 gapibundle.refresh()
                 response.set_cookie(key=ACCESS_TOKEN,value=gapibundle.access_token, **cookie_options)
                 response.set_cookie(key=REFRESH_TOKEN,value=gapibundle.refresh_token, **cookie_options)
