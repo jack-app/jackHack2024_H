@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import CourseEntry, { getFavoriteCoursesIds, getRawCourse } from './course';
 import { fetcher } from './fetcher';
 import TaskEntry from './task';
@@ -32,8 +33,8 @@ export const getAssignments = async (): Promise<TaskEntry[]> => {
     const tasks = new TaskEntry(
       assignment['entityId'],
       assignment['entityTitle'],
-      new Date(assignment['openTime']),
-      new Date(assignment['dueTime']),
+      assignment['openTimeString'],
+      assignment['dueTimeString'],
       course.name,
       course.id
     );
