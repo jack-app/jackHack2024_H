@@ -100,6 +100,7 @@ export default class AssignmentEntryRegister {
       json.courseId,
       json.duration ? json.duration : 60 //なぜかnullが入る
     );
+
     console.log(JSON.stringify(body.toJson()));
     const response = await fetch('https://jack.hbenpitsu.net/register', {
       method: 'POST',
