@@ -38,7 +38,7 @@ class CalenderEventGenerator:
         # start と end を datetime オブジェクトに変換
         starttime_dt = datetime(*schedule["start_time"])
         self.start_time = starttime_dt
-        endtime_dt = datetime(*schedule["end_time"]) + timedelta(days=1)
+        endtime_dt = datetime(*schedule["end_time"]) + timedelta(minutes=1)
 
         # start から end までのすべての日付を取得し、for ループで処理
         current_date = starttime_dt
@@ -50,7 +50,7 @@ class CalenderEventGenerator:
             # start と end を datetime オブジェクトに変換
             start_dt = datetime(*event["start"])
             start_dt = max(start_dt, starttime_dt)
-            end_dt = datetime(*event["end"]) + timedelta(minutes=1)
+            end_dt = datetime(*event["end"])
             end_dt = min(end_dt, endtime_dt)
             if start_dt >= end_dt:
                 continue
@@ -63,6 +63,8 @@ class CalenderEventGenerator:
         while current_date <= endtime_dt:
             time_dict[current_date.strftime("%Y-%m-%d %H:%M:%S")] += pre
             pre = time_dict[current_date.strftime("%Y-%m-%d %H:%M:%S")]
+            if current_date.hour <= 7 or current_date.hour >= 23:
+                time_dict[current_date.strftime("%Y-%m-%d %H:%M:%S")] = 1
             current_date += timedelta(minutes=1)  # 1 分進める
         return time_dict
 
@@ -75,21 +77,56 @@ class CalenderEventGenerator:
         calendar_event['description'] = f"{event.courseName}, {event.courseId}, {event.dueDate}"
         time_duration = event.duration  # Minで与えられる
         current_time = self.start_time
+        current_time = current_time
+        #　他のイベント、睡眠時間をさけられる場合
         while time_duration > 0:
-            while time_dict[current_time.strftime("%Y-%m-%d %H:%M:%S")] != 0:
+            while time_dict.get(current_time.strftime("%Y-%m-%d %H:%M:%S")) != 0 or current_time.minute % 15 != 0:
                 current_time += timedelta(minutes=1)
+                if time_dict.get(current_time.strftime("%Y-%m-%d %H:%M:%S")) == None:
+                    break
             start = current_time.strftime("%Y-%m-%dT%H:%M:%S%z")
 
             time_temp = 0
-            while time_temp < time_duration and time_dict.get(current_time.strftime("%Y-%m-%d %H:%M:%S")) != None and time_dict[current_time.strftime("%Y-%m-%d %H:%M:%S")] == 0:
+            while time_temp < time_duration and time_dict.get(current_time.strftime("%Y-%m-%d %H:%M:%S")) == 0:
                 time_temp += 1
                 current_time += timedelta(minutes=1)
-
+                if time_dict.get(current_time.strftime("%Y-%m-%d %H:%M:%S")) == None:
+                    break
             if time_dict.get(current_time.strftime("%Y-%m-%d %H:%M:%S")) == None:
-                return
-            end = current_time.strftime("%Y-%m-%dT%H:%M:%S%z")
+                break
 
-            if time_temp >= 5 and (time_duration == time_temp or time_duration - time_temp >= 5):
+
+            end = current_time.strftime("%Y-%m-%dT%H:%M:%S%z")
+            if time_duration == time_temp or (time_temp >= 15 and time_duration - time_temp >= 15):
+                time_duration -= time_temp
+                calendar_event['start'] = {}
+                calendar_event['start']['dateTime'] = self.__convert_datetime(start)
+                calendar_event['end'] = {}
+                calendar_event['end']['dateTime'] = self.__convert_datetime(end)
+                self.__write_event(calendar_event)
+
+        # 他のイベント、睡眠時間をさけられない場合
+        # 睡眠時間を削って課題を終わらせる日程を組む
+        if time_duration > 0:
+            current_time = self.start_time
+            print("課題を終わらせてから寝てください")
+
+
+        while time_duration > 0:
+            while (8 < current_time.hour < 23) or current_time.minute % 15 != 0:
+                current_time += timedelta(minutes=1)
+                if time_dict.get(current_time.strftime("%Y-%m-%d %H:%M:%S")) == None:
+                    return 
+            start = current_time.strftime("%Y-%m-%dT%H:%M:%S%z")
+            time_temp = 0
+            while  (not(7 < current_time.hour < 23)) and time_temp < time_duration:
+                time_temp += 1
+                current_time += timedelta(minutes=1)
+                if time_dict.get(current_time.strftime("%Y-%m-%d %H:%M:%S")) == None:
+                    return
+            end = current_time.strftime("%Y-%m-%dT%H:%M:%S%z")
+            current_time += timedelta(minutes=1)
+            if time_duration == time_temp or (time_temp >= 15 and time_duration - time_temp >= 15):
                 time_duration -= time_temp
                 calendar_event['start'] = {}
                 calendar_event['start']['dateTime'] = self.__convert_datetime(start)
@@ -119,3 +156,4 @@ class CalenderEventGenerator:
         time_max = self._get_max_due_date(event)
         time_dict = self._get_free_time(time_max)
         self._scheduling_event(event, time_dict)
+        print("write_event_to_calendar done")
