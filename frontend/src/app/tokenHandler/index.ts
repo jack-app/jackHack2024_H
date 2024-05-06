@@ -1,4 +1,3 @@
-
 class authUrlResponse {
   auth_url: string;
   constructor(auth_url: string) {
@@ -14,7 +13,7 @@ export default class EndPoints {
     if (!response.ok) {
       throw new Error(`Failed to get token: ${content.msg}`);
     }
-    return content
+    return content;
   }
 
   static async getTokens() {
@@ -30,18 +29,17 @@ export default class EndPoints {
     const content = await EndPoints._getContent(response);
     return new authUrlResponse(content.auth_url);
   }
-
 }
 
-class TokenGetter{
+class TokenGetter {
   async startAuthentication() {
     await TokenGetter.openAuthWindow();
-    await new Promise(resolve => setTimeout(resolve, 10*1000));//ms
+    await new Promise((resolve) => setTimeout(resolve, 10 * 1000)); //ms
     await EndPoints.getTokens();
   }
   static async openAuthWindow() {
     const response = await EndPoints.getAuthFlowState();
-    window.open(response.auth_url, '_blank');
+    window.open(response.auth_url);
   }
 }
 
