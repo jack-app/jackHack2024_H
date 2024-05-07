@@ -27,12 +27,11 @@ export const getAssignments = async (): Promise<TaskEntry[]> => {
     if (course === undefined) {
       course = new CourseEntry('unknown', 'unknown');
     }
-    // FIXME: openTimeとdueTimeの型を解決
     const tasks = new TaskEntry(
       assignment.entityId,
       assignment.entityTitle,
-      assignment.openTimeString as any,
-      assignment.dueTimeString as any,
+      new Date(assignment.openTimeString),
+      new Date(assignment.dueTimeString),
       course.name,
       course.id
     );

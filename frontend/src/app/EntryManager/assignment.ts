@@ -39,7 +39,7 @@ export class AssignmentEntryManager {
   private async _loadAssignments() {
     const rawAssignments = (await storage.get('assignments')) as string | undefined;
     if (rawAssignments) {
-      const assignments = JSON.parse(rawAssignments) as TaskEntry[];
+      const assignments = JSON.parse(rawAssignments) as TaskEntryJSONType[];
       const parsed = assignments.map(
         (a) =>
           new TaskEntry(
@@ -59,3 +59,12 @@ export class AssignmentEntryManager {
     }
   }
 }
+
+type TaskEntryJSONType = {
+  id: string;
+  title: string;
+  openTime: string;
+  dueDate: string;
+  courseName: string;
+  courseId: string;
+};
