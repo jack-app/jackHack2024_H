@@ -1,10 +1,14 @@
 import { fetcher } from './fetcher';
+import {
+  FavoritesListResponseType,
+  SiteCourseIDResponseType,
+  SiteID,
+  SiteResponseType,
+} from './type';
 
-export const getFavoriteCoursesIds = async (): Promise<string[]> => {
-  // TODO: 型を追加する
-  const data = await fetcher.fetch('/portal/favorites/list');
-  console.log(data);
-  return data['favoriteSiteIds'];
+export const getFavoriteCoursesIds = async (): Promise<SiteID[]> => {
+  const data = (await fetcher.fetch('/portal/favorites/list')) as FavoritesListResponseType;
+  return data.favoriteSiteIds;
 };
 
 // response.data
@@ -24,22 +28,19 @@ export const getFavoriteCoursesIds = async (): Promise<string[]> => {
 //     "autoFavoritesEnabled": true
 // }
 
-export const getRawCourse = async (courseId: string) => {
-  // TODO: 型を追加する
-  const data = await fetcher.fetch(`/direct/site/${courseId}.json`);
+export const getRawCourse = async (courseId: SiteID): Promise<SiteCourseIDResponseType> => {
+  const data = (await fetcher.fetch(`/direct/site/${courseId}.json`)) as SiteCourseIDResponseType;
   return data;
 };
 
 export const getAllCourses = async (): Promise<CourseEntry[]> => {
-  // TODO: 型を追加する
-  const data = await fetcher.fetch('/direct/site.json');
-  if (data['site_collection'] === undefined) {
+  const data = (await fetcher.fetch('/direct/site.json')) as SiteResponseType;
+  if (data.site_collection === undefined) {
     return [];
   }
 
-  // TODO: 型を追加する
-  const courseList = data['site_collection'].map((course: any) => {
-    return new CourseEntry(course['entityId'], course['entityTitle']);
+  const courseList = data.site_collection.map<CourseEntry>((course) => {
+    return new CourseEntry(course.entityId, course.entityId);
   });
   return courseList;
 };
