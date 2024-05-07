@@ -31,7 +31,7 @@ async def __cleanUp():
             if _QUEUE[state].isExpired():
                 del _QUEUE[state]
         except KeyError: pass
-        await sleep(0.1) # to allow other tasks to run
+        await sleep(0) # to allow other tasks to block this task.
 
 def issueStateToQueue(state=token_hex()):
     global _QUEUE
