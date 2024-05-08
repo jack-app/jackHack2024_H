@@ -1,15 +1,17 @@
 from secrets import token_hex
 from .exceptions import StateNotExists
 from asyncio import sleep, get_running_loop
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict
 
 _POP_TRIAL_INTERVAL = 1 # SEC
 _POP_TRIAL_LIMIT = 10 # TIMES
-_STATE_EXPIRY = 5*60 # SEC
-_QUEUE_MAX_SIZE = 20 
+_STATE_EXPIRY = 5 # MIN
+_MAX_QUEUE_SIZE = 20 
 
 class Entry:
+    code: str
+    issuedAt: datetime
     def __init__(self):
         self.code = None
         self.issuedAt = datetime.now()
@@ -18,50 +20,62 @@ class Entry:
     def isExpired(self):
         return (datetime.now() - self.issuedAt).seconds > _STATE_EXPIRY
 
-_QUEUE: Dict[str, Entry] = {}
+class SignQueue:
+    queue: Dict[str,Entry]
+    pop_trial_interval: timedelta
+    pop_trial_limit: int
+    state_expiry: timedelta
+    max_queue_size: int
+    def __init__(
+            self,
+            pop_trial_interval: timedelta = timedelta(seconds=_POP_TRIAL_INTERVAL),
+            pop_trial_limit: int = _POP_TRIAL_LIMIT,
+            state_expiry: timedelta = timedelta(minutes=_STATE_EXPIRY),
+            max_queue_size: int = _MAX_QUEUE_SIZE
+    ):
+        self.queue = {}
+        self.pop_trial_interval = pop_trial_interval
+        self.pop_trial_limit = pop_trial_limit
+        self.state_expiry = state_expiry
+        self.max_queue_size = max_queue_size
+    
+    def sizeSize(self):
+        return len(self.queue)
 
-def queueSize():
-    global _QUEUE
-    return len(_QUEUE)
+    async def cleanUp(self):
+        for state in list(self.queue.keys()):
+            try:
+                if self.queue[state].isExpired():
+                    del self.queue[state]
+            except KeyError: pass 
+            await sleep(0) # to allow other tasks to block this task
 
-async def __cleanUp():
-    global _QUEUE
-    for state in list(_QUEUE.keys()):
+    def issueState(self,state:str=token_hex()):
+        self.queue[state] = Entry()
+        if len(self.queue) > self.max_queue_size:
+            get_running_loop().create_task(self.cleanUp())
+        return state
+    
+    def sign(self, state:str, code:str):
+        if state not in self.queue:
+            raise StateNotExists(f"{state} is not in the queue.")
+        self.queue[state].code = code
+
+    async def pop(self,state):
+        if state not in self.queue:
+            raise StateNotExists(f"{state} is not in the queue.")
+        
         try:
-            if _QUEUE[state].isExpired():
-                del _QUEUE[state]
-        except KeyError: pass
-        await sleep(0) # to allow other tasks to block this task.
+            for _ in range(self.pop_trial_limit):
+                if self.queue[state].code is not None:
+                    break
+                await sleep(self.pop_trial_interval.total_seconds())
+        except KeyError:
+            raise StateNotExists(f"{state} is not in the queue.")
+        
+        if self.queue[state].code is None:
+            raise TimeoutError(f"timeout. code is not set for {state} yet.")
 
-def issueStateToQueue(state=token_hex()):
-    global _QUEUE
-    _QUEUE[state] = Entry()
-    if len(_QUEUE) > _QUEUE_MAX_SIZE:
-        get_running_loop().create_task(__cleanUp())
-    return state
-
-def signStateQueue(state, code):
-    global _QUEUE
-    if state not in _QUEUE:
-        raise StateNotExists(f"{state} is not in the queue.")
-    _QUEUE[state].code = code
-
-async def popCode(state):
-    global _QUEUE
-    if state not in _QUEUE:
-        raise StateNotExists(f"{state} is not in the queue.")
-    
-    try:
-        for _ in range(_POP_TRIAL_LIMIT):
-            if _QUEUE[state].code is not None:
-                break
-            await sleep(_POP_TRIAL_INTERVAL)
-    except KeyError:
-        raise StateNotExists(f"{state} is not in the queue.")
-    
-    if _QUEUE[state].code is None:
-        raise TimeoutError(f"timeout. code is not set for {state} yet.")
-
-    result = _QUEUE[state].code
-    del _QUEUE[state]
-    return result
+        result = self.queue[state].code
+        del self.queue[state]
+        return result

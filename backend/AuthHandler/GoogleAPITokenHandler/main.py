@@ -6,7 +6,7 @@ from DEPLOY_SETTING import REDIRECT_URI,CREDENTIAL_FILE_PATH
 from .tokenBundle import GoogleAPITokenBundle
 from .literals import REFRESH_TOKEN, ACCESS_TOKEN, AUTH_FLOW_STATE
 from .exceptions import ReAuthenticationRequired,StateNotExists,TokenNotFound
-from .authFlowState import issueStateToQueue, signStateQueue, popCode
+from .authFlowState import SignQueue
 from oauthlib.oauth2 import InvalidGrantError
 
 class GoogleAPITokenHandler:
@@ -18,6 +18,7 @@ class GoogleAPITokenHandler:
                     'https://www.googleapis.com/auth/calendar.readonly',]
         )
         self.AUTH_FLOW.redirect_uri = REDIRECT_URI
+        self.sign_queue = SignQueue()
         self.defEndpoints()
 
     def get_auth_url(self):
@@ -37,7 +38,7 @@ class GoogleAPITokenHandler:
         @self.APP.get("/getAuthFlowState")
         def issueAuthFlow(response:Response, request:Request):    
             url,state = self.get_auth_url()
-            issueStateToQueue(state)
+            self.sign_queue.issueState(state)
             response.set_cookie(key=AUTH_FLOW_STATE, value=state, **cookie_options)
             return {"auth_url": url, "msg": "success"}
 
@@ -55,7 +56,7 @@ class GoogleAPITokenHandler:
             assert code is not None
 
             try:
-                signStateQueue(state, code)
+                self.sign_queue.sign(state, code)
             except StateNotExists as e:
                 response.status_code = e.http_status
                 return {"msg":str(e)}
@@ -74,7 +75,7 @@ class GoogleAPITokenHandler:
         async def getTokens(request: Request, response: Response):
             try:
                 state = request.cookies[AUTH_FLOW_STATE]
-                code = await popCode(state)
+                code = await self.sign_queue.pop(state)
                 tokens = self.AUTH_FLOW.fetch_token(code=code)
             except TimeoutError:
                 response.status_code = 408
