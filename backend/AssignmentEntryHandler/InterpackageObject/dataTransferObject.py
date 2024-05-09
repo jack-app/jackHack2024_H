@@ -17,7 +17,7 @@ class CalenderEvent(BaseModel):
     start:datetime
     end:datetime
 
-    @model_validator('after')
+    @model_validator(mode='after')
     def validate_start_end(self):
         if self.start.tzinfo is None:
             raise ValueError(f"timezone is not scepcified in start: {self.start.isoformat()}")

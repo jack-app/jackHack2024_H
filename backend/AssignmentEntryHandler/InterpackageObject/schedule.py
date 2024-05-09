@@ -1,20 +1,20 @@
 from datetime import datetime,timedelta
 from typing import overload
 from math import ceil
-from pydantic import BaseModel,model_validator
+from pydantic import BaseModel
 
-class timespan(BaseModel):
+class timespan:
     """
     timespanはstartとendの閉包として扱われる。つまりstartは含まれ、endも含まれる。
     """
     start:datetime
     end:datetime
     
-    @model_validator('after')
-    def validate_start_end(self):
-        if self.start > self.end:
+    def __init__(self, start:datetime, end:datetime):
+        if start > end:
             raise ValueError(f"start is later than end: {self.start.isoformat()} > {self.end.isoformat()}")
-        return self
+        self.start = start
+        self.end = end
     
     @overload
     def overlaps(self, target:datetime) -> bool: ...
@@ -40,26 +40,23 @@ class timespan(BaseModel):
 
 
 
-class FreeBusyBitMap(BaseModel):
+class FreeBusyBitMap:
     bitMap:int
     scope:timespan
     interval:timedelta
     length:int
 
     class __spanIndex(BaseModel): # データのアノテーションのためだけに使う
+        """
+        onBoundaryがTrueの時、timeはindex-1とindexのspanのちょうど堺にある。
+        """
         index:int
         onBoundary:bool
-        def __init__(self, index:int, onBoundary:bool):
-            """
-            onBoundaryがTrueの時、timeはindex-1とindexのspanのちょうど堺にある。
-            """
-            self.index = index
-            self.onBoundary = onBoundary
 
     def __init__(self, scope: timespan, interval:timedelta):
         self.bitMap = 0b0 # free = 0, busy = 1. それぞれのbitがそれぞれの時間的区間を表す.
-        self.scope = scope
-        self.interval = interval
+        self.scope = scope 
+        self.interval = interval 
         self.length = ceil(scope.duration() / interval)
 
     @overload
@@ -79,7 +76,7 @@ class FreeBusyBitMap(BaseModel):
         self.overlaps(time)
         index = (time - self.scope.start) // self.interval
         rest = (time - self.scope.start) % self.interval
-        return self.__spanIndex(index, rest == timedelta(0)) 
+        return self.__spanIndex(index= index,onBoundary= rest == timedelta(0)) 
     
     def sign_as_busy(self, span:timespan):
         self.overlaps(span)
