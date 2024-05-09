@@ -94,7 +94,7 @@ def xxx():
 ただし、新しく作成したディレクトリにはこれをおいて、
 
 ```Python
-from .main import *
+from .main import {作成したクラスや定数名}
 ```
 
 と書くこと。これを書くと、インポートの際に`main`を省略できる。
