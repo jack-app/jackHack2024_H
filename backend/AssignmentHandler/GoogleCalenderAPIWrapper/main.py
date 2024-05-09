@@ -1,6 +1,6 @@
 from ..InterpackageObject.dataTransferObject import CalenderEvent
 from ..InterpackageObject.schedule import timespan
-from .exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
+from ..exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
 from datetime import datetime, timezone
 from AuthHandler import GoogleAPITokenBundle
 from aiohttp import request
@@ -116,6 +116,9 @@ class GoogleCalenderAPIClient:
             )
     
     async def register_event(self, event:CalenderEvent)->str:
+        """
+        event_idを返します。
+        """
         # https://developers.google.com/calendar/api/v3/reference/events/insert?hl=ja
         async with request(
             "POST",

@@ -4,8 +4,8 @@ from pydantic_extra_types.color import Color
 from typing import List
 
 class Assignment(BaseModel):
-    course:str
-    name:str
+    course_name:str
+    title_of_assignment:str
     dueDate:datetime
     duration:timedelta
     description:str|None = None

@@ -2,6 +2,7 @@ from datetime import datetime,timedelta
 from typing import overload
 from math import ceil
 from pydantic import BaseModel
+from asyncio import sleep
 
 class timespan:
     """
@@ -111,13 +112,14 @@ class FreeBusyBitMap:
             up_to
         )
 
-    def get_free_timespans(self):
+    async def get_free_timespans(self):
         current = None
         for i in range(self.length):
             if (self.bitMap >> i) & 1:# i番目の bit が 1 : i番目の時間区間においてbusy
                 if current is None: pass
                 else:
                     yield current
+                    await sleep(0)
                     current = None
             else: # i番目の bit が 0 : i番目の時間区間においてfree
                 if current is None:
