@@ -15,6 +15,10 @@ class GoogleCalenderAPIClient:
         }
     
     async def _get_raw_events(self,earlier_than:datetime):
+        """
+        注意: nextPageTokenに対応していないため、2500件を超えるイベントを取得しようとするとエラーが発生します。
+        """
+
         # https://developers.google.com/calendar/api/v3/reference/events/list?hl=ja
 
         if earlier_than.tzinfo is None: raise TimeZoneUnspecified(earlier_than)
@@ -47,6 +51,9 @@ class GoogleCalenderAPIClient:
         """
         もし、イベントが全日イベントだった場合、無視されます。
         "全日イベント" とは、"start" と "end" フィールドに "dateTime" フィールドがないことを指します。
+
+        注意: 2500件を超えるイベントを取得しようとすると、エラーが発生します。 
+        (アプリケーション側の仕様であるため、変更が必要な場合は_get_raw_eventsとこの関数を変更してください。nextPageTokenに対応させる形で変更してください。) 
         """
         # https://developers.google.com/calendar/api/v3/reference/events/list?hl=ja
         for raw_event_entry in await self._get_raw_events(earlier_than):
