@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, Response
 from shared.AssignmentEntry import AssignmentEntry
-from calenderapiwrapper.assignmentEntryRegister import assignmentEntryRegister
+# from calenderapiwrapper.assignmentEntryRegister import assignmentEntryRegister
 from AuthHandler.GoogleAPITokenHandler import GoogleAPITokenHandler
 from server import Server
 
