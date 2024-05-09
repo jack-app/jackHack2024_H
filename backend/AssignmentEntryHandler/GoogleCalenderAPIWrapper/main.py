@@ -107,7 +107,6 @@ class GoogleCalenderAPIClient:
                 raise ReAuthorizationRequired(await resp.text())
             raise UnexpectedAPIResponce(await resp.text())
 
-
     async def get_busytimes(self,up_to:datetime):
         # https://developers.google.com/calendar/api/v3/reference/freebusy/query?hl=ja
         for raw_busytime in await self._get_raw_busytimes(up_to):
@@ -144,3 +143,16 @@ class GoogleCalenderAPIClient:
                 raise ReAuthorizationRequired(await resp.text())
             raise UnexpectedAPIResponce(await resp.text())
         
+    async def _get_raw_colors(self):
+        # https://developers.google.com/calendar/api/v3/reference/colors/get?hl=ja
+        
+        async with request(
+            "GET",
+            "https://www.googleapis.com/calendar/v3/colors",
+            headers=self.default_headers
+        ) as resp:
+            if resp.status == 200:
+                return await resp.json()
+            if resp.status == 401:
+                raise ReAuthorizationRequired(await resp.text())
+            raise UnexpectedAPIResponce(await resp.text())

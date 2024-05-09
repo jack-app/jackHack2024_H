@@ -1,19 +1,18 @@
 from datetime import datetime,timedelta
 from pydantic import BaseModel,model_validator
+from pydantic_extra_types.color import Color
+from typing import List
 
 class Assignment(BaseModel):
     course:str
     name:str
     dueDate:datetime
-    duration:timedelta|None
-    description:str|None
-
-class assignmentRegisterCommand(BaseModel):
-    assingment: Assignment
+    duration:timedelta
+    description:str|None = None
 
 class CalenderEvent(BaseModel):
     title:str
-    description:str|None
+    description:str|None = None
     start:datetime
     end:datetime
 

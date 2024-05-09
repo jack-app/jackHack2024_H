@@ -1,15 +1,27 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+from .InterpackageObject.dataTransferObject import Assignment
 
-class assignmentEntryReceiver:
+class assignmentHandler:
     def __init__(self, app:FastAPI = FastAPI()):
         self.APP = app
 
-    def defEndpoint():
-        pass
+    class __assignmentRegisterCommand(BaseModel):
+        course:str
+        name:str
+        dueDate:str
+        duration:str
+        description:str|None = None
 
-class assignmentEntryHandler:
-    def __init__(self, receiver):
-        self.receiver = receiver
-
-    def handle(self, assignment):
-        pass
+    def defEndpoint(self):
+        
+        @self.APP.post("/registerAssignmentEntry")
+        async def registerAssignmentEntry(command:self.__assignmentRegisterCommand):
+            assignment = Assignment(
+                course=command.course,
+                name=command.name,
+                dueDate=command.dueDate,
+                duration=command.duration,
+                description=command.description
+            )
+            

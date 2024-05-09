@@ -3,6 +3,10 @@
 本来であれば`GoogleCalenderAPIWrapper`は`APIWrapper`下に抽象化されるべきだがあまり階層が深くなっても仕方がないので、
 `CalenderEventGenerator`,`CalenderEventRegister`と同じ階層に設置されている。
 
+## main
+
+エンドポイントを定義し、フロント-バックエンド間でやり取りするデータの構造を直接的に定めます。
+
 ## GoogleCalenderAPIWrapper
 
 APIへのアクセスと取得したデータをdict型から各々適切な型に詰め替える作業に責任を持ちます。
