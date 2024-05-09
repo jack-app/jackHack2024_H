@@ -9,7 +9,7 @@
 
 ## GoogleCalenderAPIWrapper
 
-APIへのアクセスと取得したデータをdict型から各々適切な型に詰め替える作業に責任を持ちます。
+APIへのアクセスと取得したデータをdict型から各々対応する適切な型に詰め替える作業に責任を持ちます。
 継続開発者はこのWrapperがWrapperの責務から逸脱しないように注意してください。
 [詳細](GoogleCalenderAPIWrapper/README.md)　。
 
