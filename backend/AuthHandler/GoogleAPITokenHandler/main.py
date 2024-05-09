@@ -5,8 +5,9 @@ from google_auth_oauthlib.flow import Flow
 from DEPLOY_SETTING import REDIRECT_URI,CREDENTIAL_FILE_PATH
 from .tokenBundle import GoogleAPITokenBundle
 from .literals import REFRESH_TOKEN, ACCESS_TOKEN, AUTH_FLOW_STATE
-from .exceptions import ReAuthenticationRequired,StateNotExists,TokenNotFound
-from .authFlowState import SignQueue
+from .exceptions import ReAuthenticationRequired,TokenNotFound
+from ..SignQueue.exceptions import StateNotExists
+from ..SignQueue import SignQueue
 from oauthlib.oauth2 import InvalidGrantError
 
 class GoogleAPITokenHandler:

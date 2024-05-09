@@ -2,7 +2,6 @@ from .literals import REFRESH_TOKEN, ACCESS_TOKEN
 from DEPLOY_SETTING import CLIENT_ID, CLIENT_SECRET
 from .exceptions import TokenNotFound, ReAuthenticationRequired
 from aiohttp import request
-from google.auth.transport.requests import Request as GRequest
 from google.auth.exceptions import RefreshError
 
 
