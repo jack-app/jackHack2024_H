@@ -1,6 +1,4 @@
-from aiohttp import ClientResponse
 from datetime import datetime
-from asyncio import run,get_running_loop
 
 class InvalidToken(Exception):
     http_status = 401

@@ -2,7 +2,7 @@ from ..calenderEvent import CalenderEvent
 from ..schedule import timespan
 from .exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
 from datetime import datetime, timezone
-from AuthHandler.GoogleAPITokenHandler.tokenBundle import GoogleAPITokenBundle
+from AuthHandler import GoogleAPITokenBundle
 from aiohttp import request
 from asyncio import sleep
 
