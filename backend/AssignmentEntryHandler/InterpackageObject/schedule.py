@@ -1,15 +1,21 @@
 from datetime import datetime,timedelta
 from typing import overload
 from math import ceil
+from pydantic import BaseModel,model_validator
 
-class timespan:
+class timespan(BaseModel):
     """
-    Timespan is delt as a closure of start and end. That means the start is included and the end is ALSO included.
+    timespanはstartとendの閉包として扱われる。つまりstartは含まれ、endも含まれる。
     """
-    def __init__(self, start:datetime, end:datetime):
-        if start > end: raise ValueError(f"start is later than end: {start.isoformat()} > {end.isoformat()}")
-        self.start = start
-        self.end = end
+    start:datetime
+    end:datetime
+    
+    @model_validator('after')
+    def validate_start_end(self):
+        if self.start > self.end:
+            raise ValueError(f"start is later than end: {self.start.isoformat()} > {self.end.isoformat()}")
+        return self
+    
     @overload
     def overlaps(self, target:datetime) -> bool: ...
     @overload
@@ -26,23 +32,32 @@ class timespan:
         return self.start.isoformat() + "->" + self.end.isoformat()
     def concat(self, other:'timespan', force:bool=False):
         """
-        when force is True, the timespan is concatenated regardless of the continuity.
+        forceがTrueの時、連続性を無視してtimespanを連結する。
         """
         if force or self.end == other.start:
             return timespan(self.start,other.end)
         raise ValueError(f"timespan is not continuous: {self.end} != {other.start}")
 
-class _spanIndex:
-    def __init__(self, index:int, onBoundary:bool):
-        """
-        when onBoundary is True, the time is between index-1 and index.
-        """
-        self.index = index
-        self.onBoundary = onBoundary
 
-class FreeBusyBitMap:
+
+class FreeBusyBitMap(BaseModel):
+    bitMap:int
+    scope:timespan
+    interval:timedelta
+    length:int
+
+    class __spanIndex(BaseModel): # データのアノテーションのためだけに使う
+        index:int
+        onBoundary:bool
+        def __init__(self, index:int, onBoundary:bool):
+            """
+            onBoundaryがTrueの時、timeはindex-1とindexのspanのちょうど堺にある。
+            """
+            self.index = index
+            self.onBoundary = onBoundary
+
     def __init__(self, scope: timespan, interval:timedelta):
-        self.bitMap = 0b0 # free = 0, busy = 1. each bit represents each span.
+        self.bitMap = 0b0 # free = 0, busy = 1. それぞれのbitがそれぞれの時間的区間を表す.
         self.scope = scope
         self.interval = interval
         self.length = ceil(scope.duration() / interval)
@@ -64,7 +79,7 @@ class FreeBusyBitMap:
         self.overlaps(time)
         index = (time - self.scope.start) // self.interval
         rest = (time - self.scope.start) % self.interval
-        return _spanIndex(index, rest == timedelta(0)) 
+        return self.__spanIndex(index, rest == timedelta(0)) 
     
     def sign_as_busy(self, span:timespan):
         self.overlaps(span)
@@ -73,14 +88,14 @@ class FreeBusyBitMap:
         last_span = self.fall_into_which_span(span.end)
 
         if first_span.onBoundary and first_span.index > 0:    
-            scope_start_to_first = (1 << first_span.index-1) - 1 # not includes first_span.index-1
+            scope_start_to_first = (1 << first_span.index-1) - 1 # first_span.index-1 を含まない
         else:
-            scope_start_to_first = (1 << first_span.index) - 1 # not includes first_span.index
+            scope_start_to_first = (1 << first_span.index) - 1 # first_span.index を含まない
         
         if last_span.index < self.length:
-            scope_start_to_last = (1 << last_span.index+1) - 1 # includes last_span.index
+            scope_start_to_last = (1 << last_span.index+1) - 1 # last_span.index　を含む
         else:
-            scope_start_to_last = (1 << last_span.index) - 1 # not includes last_span.index
+            scope_start_to_last = (1 << last_span.index) - 1 # last_span.index を含まない
         
         first_span_to_last = scope_start_to_last - scope_start_to_first
         self.bitMap |= first_span_to_last
@@ -102,12 +117,12 @@ class FreeBusyBitMap:
     def get_free_timespans(self):
         current = None
         for i in range(self.length):
-            if (self.bitMap >> i) & 1:# i-th bit is 1 : busy
+            if (self.bitMap >> i) & 1:# i番目の bit が 1 : i番目の時間区間においてbusy
                 if current is None: pass
                 else:
                     yield current
                     current = None
-            else: # i-th bit is 0 : free
+            else: # i番目の bit が 0 : i番目の時間区間においてfree
                 if current is None:
                     current = self.index_to_timespan(i)
                 else:
@@ -126,7 +141,7 @@ class FreeBusyBitMap:
         newMap.bitMap = self.bitMap
         return newMap
     def __not__(self):
-        newMap = self.clone() # not to destruct the original object.
+        newMap = self.clone() # 元のオブジェクトを破壊しないために。
         return newMap.reverse()
     def is_consistent_with(self, other:'FreeBusyBitMap'):
         if self.scope.start != other.scope.start or self.scope.end != other.scope.end: 
@@ -134,17 +149,17 @@ class FreeBusyBitMap:
         if self.interval != other.interval: raise ValueError(f"timespan is not the same: {self.interval} != {other.interval}")
     def __and__(self, other:'FreeBusyBitMap'):
         self.is_consistent_with(other)
-        newMap = self.clone() # not to destruct the original object.
+        newMap = self.clone() # 元のオブジェクトを破壊しないために。
         newMap.bitMap &= other.bitMap
         return newMap
     def __or__(self, other:'FreeBusyBitMap'):
         self.is_consistent_with(other)
-        newMap = self.clone() # not to destruct the original object.
+        newMap = self.clone() # 元のオブジェクトを破壊しないために。
         newMap.bitMap |= other.bitMap
         return newMap
     def __xor__(self, other:'FreeBusyBitMap'):
         self.is_consistent_with(other)
-        newMap = self.clone() # not to destruct the original object.
+        newMap = self.clone() # 元のオブジェクトを破壊しないために。
         newMap.bitMap ^= other.bitMap
         return newMap
     def __str__(self):

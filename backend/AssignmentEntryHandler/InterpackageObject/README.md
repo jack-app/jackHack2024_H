@@ -4,6 +4,11 @@
 
 各種APIWrapper,CalenderEventRegister,CalenderEventGenerator間でやり取りされるオブジェクト（型）を定義する。
 
+## dataTransgerObject
+
+通称DTO.複雑な動作は行わず、データのアノテーションのみを目的とする。
+初期化時にデータの妥当性も検証する。
+
 ## schedule
 
 `timespan`, `FreeBusyBitMap`からなる。

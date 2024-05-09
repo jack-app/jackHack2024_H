@@ -1,5 +1,5 @@
-from ..InterpackageObjects.calenderEvent import CalenderEvent
-from ..InterpackageObjects.schedule import timespan
+from ..InterpackageObject.dataTransferObject import CalenderEvent
+from ..InterpackageObject.schedule import timespan
 from .exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
 from datetime import datetime, timezone
 from AuthHandler import GoogleAPITokenBundle
