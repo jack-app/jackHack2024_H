@@ -6,8 +6,6 @@ from AuthHandler import GoogleAPITokenBundle
 from aiohttp import request
 from asyncio import sleep
 
-MAX_TRIAL = 3
-
 class GoogleCalenderAPIClient:
     def __init__(self, tokenBundle:GoogleAPITokenBundle):
         self.tokens = tokenBundle
