@@ -39,12 +39,17 @@ main: *エントリーポイント
 ### DEPLOY_SETTING
 
 デプロイする際に必要な設定や認証情報の設置場所であり、
-これら情報を定数として提供する。
+これら情報を定数として提供する。設定の記入方法は`dummy.`に従う。ただし実際の設置時には`dummy.`を除いたファイル名を使用すること。
+
+@developpers: `dummy.`ファイルを削除しないように。
+
+スクリプトとしての機能は環境変数を読み込むだけなので、すべての処理が`__init__.py`内に記述されている。 
 
 ### AuthHandler
 
 APIなどの利用に歳する認証フローを扱うプログラムがここに配置される。
 今のところはGoogleCalenderAPIしか扱わないが、拡張性のために抽象化レイヤーとして置かれている。
+[詳細](AuthHandler/README.md)
 
 ### server
 
@@ -106,24 +111,28 @@ e.g.
 |-super.py
 ```
 
-```python:a\b\main.py
+a\b\main.py
+```python
 SOME_CONSTANT_VALUE="b_package"
 ```
 
-```python:a\c\main.py
+a\c\main.py
+```python
 SOME_CONSTANT_VALUE="c_directory"
 ```
 
 としたとき、
 
-```python:super.py
+super.py
+```python
 from b import SOME_CONSTANT_VALUE as B_CONST
 from c.main import SOME_CONSTANT_VALUE as C_CONST
 ```
 
 とは書けるが
 
-```python:super.py
+super.py
+```python
 from c import SOME_CONSTANT_VALUE as C_CONST
 ```
 
