@@ -1,24 +1,22 @@
 from secrets import token_hex
 from .exceptions import StateNotExists
+from .config import _POP_TRIAL_INTERVAL, _POP_TRIAL_LIMIT, _STATE_EXPIRY, _MAX_QUEUE_SIZE
 from asyncio import sleep, get_running_loop
 from datetime import datetime, timedelta
 from typing import Dict
 
-_POP_TRIAL_INTERVAL = 1 # SEC
-_POP_TRIAL_LIMIT = 10 # TIMES
-_STATE_EXPIRY = 5 # MIN
-_MAX_QUEUE_SIZE = 20 
-
 class Entry:
     code: str
     issuedAt: datetime
-    def __init__(self):
+    state_expiry: timedelta
+    def __init__(self, state_expiry: timedelta):
         self.code = None
         self.issuedAt = datetime.now()
+        self.state_expiry = state_expiry
     def __hash__(self) -> int:
         return hash(self)
     def isExpired(self):
-        return (datetime.now() - self.issuedAt).seconds > _STATE_EXPIRY
+        return (datetime.now() - self.issuedAt) > self.state_expiry
 
 class SignQueue:
     queue: Dict[str,Entry]
@@ -51,7 +49,7 @@ class SignQueue:
             await sleep(0) # to allow other tasks to block this task
 
     def issueState(self,state:str=token_hex()):
-        self.queue[state] = Entry()
+        self.queue[state] = Entry(self.state_expiry)
         if len(self.queue) > self.max_queue_size:
             get_running_loop().create_task(self.cleanUp())
         return state
