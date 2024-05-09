@@ -8,6 +8,8 @@ class TooManyEvents(Exception):
     http_status = 500
 class UnexpectedAPIResponce(Exception):
     http_status = 500
+class ReAuthorizationRequired(Exception):
+    http_status = 401
 class TimeZoneUnspecified(Exception):
     def __init__(self, time:datetime):
         self.msg = f"timezone is not specified in {time.isoformat()}"

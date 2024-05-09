@@ -1,6 +1,6 @@
 from ..calenderEvent import CalenderEvent
 from ..schedule import timespan
-from .exceptions import UnexpectedAPIResponce, TimeZoneUnspecified
+from .exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
 from datetime import datetime, timezone
 from AuthHandler.GoogleAPITokenHandler.tokenBundle import GoogleAPITokenBundle
 from aiohttp import request
@@ -20,33 +20,29 @@ class GoogleCalenderAPIClient:
         
         if earlier_than.tzinfo is None: raise TimeZoneUnspecified(earlier_than)
         
-        events = []
-        for _ in range(MAX_TRIAL):
-            async with request(
-                "GET",
-                "https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events"
-                .format(calendarId="primary"),
-                headers=self.default_headers,
-                params={
-                    "timeMin":datetime.now(timezone.utc).isoformat(),
-                    "timeMax":earlier_than.isoformat(),
-                    "maxResults":2500,# Maximum value of maxResults is 2500
-                    "singleEvents":'true',
-                    "orderBy":"startTime"
-                }
-            ) as resp:
-                if resp.status == 200:
-                    events = await resp.json()
-                    break
-                if resp.status == 401:
-                    await self.tokens.refresh()
-                    continue
-                raise UnexpectedAPIResponce(await resp.text())
+        async with request(
+            "GET",
+            "https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events"
+            .format(calendarId="primary"),
+            headers=self.default_headers,
+            params={
+                "timeMin":datetime.now(timezone.utc).isoformat(),
+                "timeMax":earlier_than.isoformat(),
+                "maxResults":2500,# Maximum value of maxResults is 2500
+                "singleEvents":'true',
+                "orderBy":"startTime"
+            }
+        ) as resp:
+            if resp.status == 200:
+                events = await resp.json()
+                if "nextPageToken" in events:
+                    raise Exception("There were too many events to fetch.")
+                return events["items"]
+            if resp.status == 401:
+                raise ReAuthorizationRequired(await resp.text())
+            raise UnexpectedAPIResponce(await resp.text())
         
-        if "nextPageToken" in events:
-            raise Exception("There were too many events to fetch.")
 
-        return events["items"]
 
     async def get_events(self,earlier_than:datetime):
         """
@@ -66,49 +62,42 @@ class GoogleCalenderAPIClient:
 
     async def _get_calender_ids(self):
         calenders = []
-        for _ in range(MAX_TRIAL):
-            async with request(
-                "GET",
-                "https://www.googleapis.com/calendar/v3/users/me/calendarList",
-                headers=self.default_headers
-            ) as resp:
-                if resp.status == 200:
-                    calenders = await resp.json()
-                    break
-                if resp.status == 401:
-                    await self.tokens.refresh()
-                    continue
-                raise UnexpectedAPIResponce(await resp.text())
-        return [calender["id"] for calender in calenders["items"]]
+        async with request(
+            "GET",
+            "https://www.googleapis.com/calendar/v3/users/me/calendarList",
+            headers=self.default_headers
+        ) as resp:
+            if resp.status == 200:
+                calenders = await resp.json()
+                return [calender["id"] for calender in calenders["items"]]
+            if resp.status == 401:
+                raise ReAuthorizationRequired(await resp.text())
+            raise UnexpectedAPIResponce(await resp.text())
 
     async def _get_raw_busytimes(self,up_to:datetime):
         # https://developers.google.com/calendar/api/v3/reference/freebusy/query
 
         if up_to.tzinfo is None: raise TimeZoneUnspecified(up_to)
 
-        freebuzy = []
-        for _ in range(MAX_TRIAL):
-            async with request(
-                "POST",
-                "https://www.googleapis.com/calendar/v3/freeBusy",
-                headers=self.default_headers,
-                json={
-                    "timeMin":datetime.now(timezone.utc).isoformat(),
-                    "timeMax":up_to.isoformat(),
-                    "items":[
-                        {"id":"primary"}
-                    ]
-                }
-            ) as resp:
-                if resp.status == 200:
-                    freebuzy = await resp.json()
-                    break
-                if resp.status == 401:
-                    await self.tokens.refresh()
-                    continue
-                raise UnexpectedAPIResponce(await resp.text())
+        async with request(
+            "POST",
+            "https://www.googleapis.com/calendar/v3/freeBusy",
+            headers=self.default_headers,
+            json={
+                "timeMin":datetime.now(timezone.utc).isoformat(),
+                "timeMax":up_to.isoformat(),
+                "items":[
+                    {"id":"primary"}
+                ]
+            }
+        ) as resp:
+            if resp.status == 200:
+                freebuzy = await resp.json()
+                return freebuzy["calendars"]["primary"]["busy"]
+            if resp.status == 401:
+                raise ReAuthorizationRequired(await resp.text())
+            raise UnexpectedAPIResponce(await resp.text())
 
-        return freebuzy["calendars"]["primary"]["busy"]
 
     async def get_busytimes(self,up_to:datetime):
         for raw_busytime in await self._get_raw_busytimes(up_to):
@@ -118,33 +107,29 @@ class GoogleCalenderAPIClient:
             )
     
     async def register_event(self, event:CalenderEvent)->str:
-        result = None
-        for _ in range(MAX_TRIAL):
-            async with request(
-                "POST",
-                "https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events"
-                .format(calendarId="primary"),
-                headers=self.default_headers,
-                json={
-                    "summary": event.title,
-                    "description": event.description or "",
-                    "end": {
-                        "dateTime":event.end.isoformat()
-                    },
-                    "start": {
-                        "dateTime":event.start.isoformat()
-                    },
-                    "reminders": {
-                        "useDefault": 'true'
-                    }
+        async with request(
+            "POST",
+            "https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events"
+            .format(calendarId="primary"),
+            headers=self.default_headers,
+            json={
+                "summary": event.title,
+                "description": event.description or "",
+                "end": {
+                    "dateTime":event.end.isoformat()
+                },
+                "start": {
+                    "dateTime":event.start.isoformat()
+                },
+                "reminders": {
+                    "useDefault": 'true'
                 }
-            ) as resp:
-                if resp.status == 200:
-                    result = await resp.json()
-                    break
-                if resp.status == 401:
-                    await self.tokens.refresh()
-                    continue
-                raise UnexpectedAPIResponce(await resp.text())
+            }
+        ) as resp:
+            if resp.status == 200:
+                result = await resp.json()
+                return result["id"]
+            if resp.status == 401:
+                raise ReAuthorizationRequired(await resp.text())
+            raise UnexpectedAPIResponce(await resp.text())
         
-        return result["id"]
