@@ -7,6 +7,8 @@ SignQueueに依存している。
 GoogleOAuthのラッパ。通信関連における非同期処理に対応している。
 Redirectによってよりシンプルな実装が可能であると思われたが、Redirectを使用するとcookieが設定されない現象を確認したため、現在の少々複雑なプロトコルを用いている。
 
+[リファレンス](https://developers.google.com/identity/protocols/oauth2/web-server?hl=ja)
+
 ## トークン発行プロトコル
 
 1. `APP/getAuthFlowState`にアクセスして`auth_url`を取得。このときstateがcookieとして保持される。
