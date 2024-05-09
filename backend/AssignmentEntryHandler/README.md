@@ -5,12 +5,12 @@
 
 ## GoogleCalenderAPIWrapper
 
-読んで字のごとく。[詳細はここを参照のこと](GoogleCalenderAPIWrapper/README.md)　。
+APIへのアクセスと取得したデータをdict型から各々適切な型に詰め替える作業に責任を持ちます。
 継続開発者はこのWrapperがWrapperの責務から逸脱しないように注意してください。
+[詳細](GoogleCalenderAPIWrapper/README.md)　。
 
-## schedule
+## InterpackageObjects
 
-`timespan`, `FreeBusyBitMap`からなる。
-`timespan`は２つの`datetime`の組であり、`FreeBusyBitMap`はこれに依存している。
-`FreeBusyBitMap`は予定の有無をbit列上で表現したものである。
-各bitは長さ`interval(timedelta)`の時間的な区間をエンコードしている。
+各種APIWrapper,CalenderEventRegister,CalenderEventGenerator間でやり取りされるオブジェクト（型）を定義します。
+[詳細](InterpackageObjects/README.md)
+

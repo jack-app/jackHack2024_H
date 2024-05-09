@@ -1,4 +1,4 @@
-from AssignmentEntryHandler.schedule import FreeBusyBitMap,timespan
+from AssignmentEntryHandler.InterpackageObjects.schedule import FreeBusyBitMap,timespan
 from datetime import datetime,timedelta
 
 origin = datetime.now()
