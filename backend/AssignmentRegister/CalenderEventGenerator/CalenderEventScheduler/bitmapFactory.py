@@ -5,6 +5,7 @@ from .util import FreeBusyBitMap
 from ...GoogleCalenderAPIWrapper import GoogleCalenderAPIClient
 from .config import CELL_INTERVAL
 from asyncio import sleep
+from math import ceil
 
 async def avoid_task_overlapping(target_timespan: timespan,calender_api_client: GoogleCalenderAPIClient,interval:timedelta=CELL_INTERVAL):
     bitmap = FreeBusyBitMap(scope=target_timespan,interval=interval)
@@ -14,6 +15,17 @@ async def avoid_task_overlapping(target_timespan: timespan,calender_api_client: 
 
 def __cast_time_to_float(time:time):
     return time.hour + time.minute/60 + time.second/3600 + time.microsecond/3600000
+
+def make_margin(bitmap: FreeBusyBitMap, margin: timedelta):
+    """
+    bitmapのbusyな部分をmarginだけ広げる。
+    """
+    bitmap = bitmap.clone()
+    margin_bit_size = ceil(bitmap.interval / margin)
+    for i in range(1,margin_bit_size+1):
+        bitmap.bitMap |= ( bitmap.bitMap << i)
+        bitmap.bitMap |= ( bitmap.bitMap >> i)
+    return bitmap
 
 async def avoid_sleeping_time(target_timespan: timespan, sleepSchedule: SleepSchedule,interval:timedelta=CELL_INTERVAL):
     """

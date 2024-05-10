@@ -21,6 +21,7 @@ class AssignmentHandler:
         duration:timedelta
         description:str|None = None
 
+
     def defEndpoints(self):
         
         @self.APP.post("/register")
@@ -36,9 +37,13 @@ class AssignmentHandler:
                 tokenBundle = GoogleAPITokenBundle.from_dict(request.cookies)
                 GoogleAPI_client = GoogleCalenderAPIClient(tokenBundle)
 
-                calender_event = await CalenderEventGenerator(GoogleAPI_client).generate(assignment)
-                event_id = await CalenderEventRegister(GoogleAPI_client).register(calender_event)
-                return {"msg":"success","event_id":event_id}
+                event_register = CalenderEventRegister(GoogleAPI_client)
+                event_generator = CalenderEventGenerator(GoogleAPI_client)
+                
+                event_ids = []
+                async for event in event_generator.generate_events(assignment):
+                    event_ids.append(await event_register.register(event))
+                return {"msg":"success","event_ids":event_ids}
 
             except ReAuthorizationRequired as e:
                 response.status_code=e.http_status

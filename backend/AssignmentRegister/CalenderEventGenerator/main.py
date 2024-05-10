@@ -7,7 +7,7 @@ from .CalenderEventScheduler import Scheduler
 class CalenderEventGenerator:
     def __init__(self,APIClient:GoogleCalenderAPIClient):
         self.google_calender_api_client = APIClient
-    async def generate(self, assignment:Assignment)->CalenderEvent:
+    async def generate_events(self, assignment:Assignment):
         scheduler = Scheduler(
             timespan(datetime.now(timezone.utc),assignment.dueDate),
             self.google_calender_api_client,
@@ -16,12 +16,9 @@ class CalenderEventGenerator:
                 wake_up=time(hour=8,minute=0)
             )
         )
-        return CalenderEvent(
+        yield CalenderEvent(
             title="mock",
             description="mock",
             start=datetime.now(timezone.utc),
             end=datetime.now(timezone.utc)+timedelta(hours=1),
         )
-
-class AssignmentEvnetConvertor:
-    pass
