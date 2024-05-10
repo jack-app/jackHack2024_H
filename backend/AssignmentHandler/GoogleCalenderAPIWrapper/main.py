@@ -1,12 +1,10 @@
-from ..calenderEvent import CalenderEvent
-from ..schedule import timespan
-from .exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
+from ..InterpackageObject.dataTransferObject import CalenderEvent
+from ..InterpackageObject.schedule import timespan
+from ..exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
 from datetime import datetime, timezone
-from AuthHandler.GoogleAPITokenHandler.tokenBundle import GoogleAPITokenBundle
+from AuthHandler import GoogleAPITokenBundle
 from aiohttp import request
 from asyncio import sleep
-
-MAX_TRIAL = 3
 
 class GoogleCalenderAPIClient:
     def __init__(self, tokenBundle:GoogleAPITokenBundle):
@@ -17,7 +15,12 @@ class GoogleCalenderAPIClient:
         }
     
     async def _get_raw_events(self,earlier_than:datetime):
-        
+        """
+        注意: nextPageTokenに対応していないため、2500件を超えるイベントを取得しようとするとエラーが発生します。
+        """
+
+        # https://developers.google.com/calendar/api/v3/reference/events/list?hl=ja
+
         if earlier_than.tzinfo is None: raise TimeZoneUnspecified(earlier_than)
         
         async with request(
@@ -28,7 +31,7 @@ class GoogleCalenderAPIClient:
             params={
                 "timeMin":datetime.now(timezone.utc).isoformat(),
                 "timeMax":earlier_than.isoformat(),
-                "maxResults":2500,# Maximum value of maxResults is 2500
+                "maxResults":2500,# maxResults の最大値は 2500
                 "singleEvents":'true',
                 "orderBy":"startTime"
             }
@@ -46,9 +49,13 @@ class GoogleCalenderAPIClient:
 
     async def get_events(self,earlier_than:datetime):
         """
-        if the event is all day event, it will be ignored.
-        "all day event" means that the event has no "dateTime" field in "start" and "end" field.
+        もし、イベントが全日イベントだった場合、無視されます。
+        "全日イベント" とは、"start" と "end" フィールドに "dateTime" フィールドがないことを指します。
+
+        注意: 2500件を超えるイベントを取得しようとすると、エラーが発生します。 
+        (アプリケーション側の仕様であるため、変更が必要な場合は_get_raw_eventsとこの関数を変更してください。nextPageTokenに対応させる形で変更してください。) 
         """
+        # https://developers.google.com/calendar/api/v3/reference/events/list?hl=ja
         for raw_event_entry in await self._get_raw_events(earlier_than):
             try:
                 yield CalenderEvent(
@@ -58,9 +65,11 @@ class GoogleCalenderAPIClient:
                     end=datetime.fromisoformat(raw_event_entry["end"]["dateTime"])
                 )
             except KeyError: pass
-            await sleep(0) # to allow other tasks to block this task.
+            await sleep(0) # 他のタスクのブロッキングを許すため。
 
     async def _get_calender_ids(self):
+        # https://developers.google.com/calendar/api/v3/reference/calendarList/list?hl=ja
+
         calenders = []
         async with request(
             "GET",
@@ -75,7 +84,7 @@ class GoogleCalenderAPIClient:
             raise UnexpectedAPIResponce(await resp.text())
 
     async def _get_raw_busytimes(self,up_to:datetime):
-        # https://developers.google.com/calendar/api/v3/reference/freebusy/query
+        # https://developers.google.com/calendar/api/v3/reference/freebusy/query?hl=ja
 
         if up_to.tzinfo is None: raise TimeZoneUnspecified(up_to)
 
@@ -98,8 +107,8 @@ class GoogleCalenderAPIClient:
                 raise ReAuthorizationRequired(await resp.text())
             raise UnexpectedAPIResponce(await resp.text())
 
-
     async def get_busytimes(self,up_to:datetime):
+        # https://developers.google.com/calendar/api/v3/reference/freebusy/query?hl=ja
         for raw_busytime in await self._get_raw_busytimes(up_to):
             yield timespan(
                 start=datetime.fromisoformat(raw_busytime["start"]),
@@ -107,6 +116,10 @@ class GoogleCalenderAPIClient:
             )
     
     async def register_event(self, event:CalenderEvent)->str:
+        """
+        event_idを返します。
+        """
+        # https://developers.google.com/calendar/api/v3/reference/events/insert?hl=ja
         async with request(
             "POST",
             "https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events"
@@ -133,3 +146,16 @@ class GoogleCalenderAPIClient:
                 raise ReAuthorizationRequired(await resp.text())
             raise UnexpectedAPIResponce(await resp.text())
         
+    async def _get_raw_colors(self):
+        # https://developers.google.com/calendar/api/v3/reference/colors/get?hl=ja
+        
+        async with request(
+            "GET",
+            "https://www.googleapis.com/calendar/v3/colors",
+            headers=self.default_headers
+        ) as resp:
+            if resp.status == 200:
+                return await resp.json()
+            if resp.status == 401:
+                raise ReAuthorizationRequired(await resp.text())
+            raise UnexpectedAPIResponce(await resp.text())

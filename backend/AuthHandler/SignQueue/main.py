@@ -6,13 +6,13 @@ from datetime import datetime, timedelta
 from typing import Dict
 
 class Entry:
-    code: str
     issuedAt: datetime
     state_expiry: timedelta
+    code: str | None = None
     def __init__(self, state_expiry: timedelta):
-        self.code = None
-        self.issuedAt = datetime.now()
+        self.issuedAt = datetime.now() 
         self.state_expiry = state_expiry
+        self.code = None
     def __hash__(self) -> int:
         return hash(self)
     def isExpired(self):

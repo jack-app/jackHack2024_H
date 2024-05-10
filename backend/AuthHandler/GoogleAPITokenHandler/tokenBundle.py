@@ -6,6 +6,11 @@ from google.auth.exceptions import RefreshError
 
 
 class GoogleAPITokenBundle:
+    access_token: str
+    refresh_token: str
+    client_id: str
+    client_secret: str
+
     @staticmethod
     def from_dict(d: dict):
         try:

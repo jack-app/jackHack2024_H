@@ -1,6 +1,9 @@
-if input("test GoogleAPITokenHandler: (y/n)") == "y":
-    from tests import GoogleAPITokenHandler
-if input("test GoogleCalenderAPIWrapper: (y/n)") == "y":
-    from tests import GoogleCalenderAPIWrapper
-if input("test calenderSchedule: (y/n)") == "y":
-    from tests import calenderSchedule
+from importlib import import_module
+from glob import glob
+from re import split
+
+for module in glob('tests/*.py'):
+    module = split(r'\/|\\',module[:-3])[1]
+    if module=='__init__' or module.startswith("module_") or input(f"test {module} (y/n):") != 'y':
+        continue
+    import_module("tests."+module)
