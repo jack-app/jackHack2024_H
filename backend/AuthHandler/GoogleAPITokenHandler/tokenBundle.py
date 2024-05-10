@@ -20,6 +20,8 @@ class GoogleAPITokenBundle:
         self.client_secret = CLIENT_SECRET
 
     async def revoke(self):
+        # https://developers.google.com/identity/protocols/oauth2/web-server?hl=ja#tokenrevoke
+
         await request(
             "POST", 
             "https://oauth2.googleapis.com/revoke", 
@@ -31,6 +33,8 @@ class GoogleAPITokenBundle:
         return
     
     async def refresh(self):
+        # https://developers.google.com/identity/protocols/oauth2/web-server?hl=ja#offline
+
         try:
             async with request(
                 "POST",

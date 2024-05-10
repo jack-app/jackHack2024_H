@@ -77,6 +77,9 @@ class GoogleAPITokenHandler:
             try:
                 state = request.cookies[AUTH_FLOW_STATE]
                 code = await self.sign_queue.pop(state)
+
+                # https://developers.google.com/identity/protocols/oauth2/web-server?hl=ja#exchange-authorization-code
+
                 tokens = self.AUTH_FLOW.fetch_token(code=code)
             except TimeoutError:
                 response.status_code = 408
