@@ -1,4 +1,5 @@
-from AssignmentHandler.InterpackageObject.schedule import FreeBusyBitMap,timespan
+from AssignmentHandler.InterpackageObject.datetime_expansion import timespan
+from AssignmentHandler.CalenderEventGenerator.CalenderEventScheduler.util import FreeBusyBitMap
 from datetime import datetime,timedelta
 
 async def test():

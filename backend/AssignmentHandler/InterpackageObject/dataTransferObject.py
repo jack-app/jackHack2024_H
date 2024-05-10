@@ -1,7 +1,11 @@
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,time
 from pydantic import BaseModel,model_validator
 from pydantic_extra_types.color import Color
 from typing import List
+
+class SleepSchedule(BaseModel):
+    go_to_bed:time
+    wake_up:time
 
 class Assignment(BaseModel):
     course_name:str

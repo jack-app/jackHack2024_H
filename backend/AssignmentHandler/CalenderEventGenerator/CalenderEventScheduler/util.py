@@ -1,45 +1,10 @@
+
+from ...InterpackageObject.datetime_expansion import timespan
 from datetime import datetime,timedelta
+from pydantic import BaseModel
 from typing import overload
 from math import ceil
-from pydantic import BaseModel
 from asyncio import sleep
-
-class timespan:
-    """
-    timespanはstartとendの閉包として扱われる。つまりstartは含まれ、endも含まれる。
-    """
-    start:datetime
-    end:datetime
-    
-    def __init__(self, start:datetime, end:datetime):
-        if start > end:
-            raise ValueError(f"start is later than end: {self.start.isoformat()} > {self.end.isoformat()}")
-        self.start = start
-        self.end = end
-    
-    @overload
-    def overlaps(self, target:datetime) -> bool: ...
-    @overload
-    def overlaps(self, target:'timespan') -> bool: ...
-    def overlaps(self, target):
-        if isinstance(target, timespan):
-            return self.start <= target.start and target.end <= self.end
-        if isinstance(target, datetime):
-            return self.start <= target <= self.end
-        raise ValueError(f"target is not datetime or timespan: {target}")
-    def duration(self):
-        return self.end - self.start
-    def __str__(self):
-        return self.start.isoformat() + "->" + self.end.isoformat()
-    def concat(self, other:'timespan', force:bool=False):
-        """
-        forceがTrueの時、連続性を無視してtimespanを連結する。
-        """
-        if force or self.end == other.start:
-            return timespan(self.start,other.end)
-        raise ValueError(f"timespan is not continuous: {self.end} != {other.start}")
-
-
 
 class FreeBusyBitMap:
     bitMap:int
@@ -73,7 +38,7 @@ class FreeBusyBitMap:
             if not self.scope.overlaps(target):
                 raise ValueError(f"time is not in scope: {target.isoformat()} is not in {self.scope}")
 
-    def fall_into_which_span(self, time:datetime):
+    def fall_into_which_bit(self, time:datetime):
         self.overlaps(time)
         index = (time - self.scope.start) // self.interval
         rest = (time - self.scope.start) % self.interval
@@ -82,8 +47,8 @@ class FreeBusyBitMap:
     def sign_as_busy(self, span:timespan):
         self.overlaps(span)
 
-        first_span = self.fall_into_which_span(span.start)
-        last_span = self.fall_into_which_span(span.end)
+        first_span = self.fall_into_which_bit(span.start)
+        last_span = self.fall_into_which_bit(span.end)
 
         if first_span.onBoundary and first_span.index > 0:    
             scope_start_to_first = (1 << first_span.index-1) - 1 # first_span.index-1 を含まない
@@ -98,7 +63,7 @@ class FreeBusyBitMap:
         first_span_to_last = scope_start_to_last - scope_start_to_first
         self.bitMap |= first_span_to_last
 
-    def index_to_timespan(self, index:int):
+    def bit_index_to_timespan(self, index:int):
         if index >= self.length: raise ValueError(f"index is out of range: {index} >= {self.length}")
         
         up_to = None
@@ -119,13 +84,13 @@ class FreeBusyBitMap:
                 if current is None: pass
                 else:
                     yield current
-                    await sleep(0)
                     current = None
             else: # i番目の bit が 0 : i番目の時間区間においてfree
                 if current is None:
-                    current = self.index_to_timespan(i)
+                    current = self.bit_index_to_timespan(i)
                 else:
-                    current = current.concat(self.index_to_timespan(i))
+                    current = current.concat(self.bit_index_to_timespan(i))
+            await sleep(0)
         if current is not None:
             yield current
 
@@ -135,6 +100,8 @@ class FreeBusyBitMap:
         self.bitMap = self.bitMap ^ currentMap
         return self
     
+    # 以下演算子オーバーロード
+
     def clone(self):
         newMap = FreeBusyBitMap(self.scope,self.interval)
         newMap.bitMap = self.bitMap
