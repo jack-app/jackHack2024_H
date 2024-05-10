@@ -7,8 +7,8 @@ from datetime import datetime,timedelta,timezone
 res = requests.post(
     "http://localhost:8000/register",
     json={
-        "course_name":"mock course",
-        "title_of_assignment":"mock assignment",
+        "course_name":"mock course from test",
+        "title_of_assignment":"mock assignment from test",
         "dueDate":(datetime.now(timezone.utc)+timedelta(days=2)).isoformat(),
         "duration":timedelta(hours=1).total_seconds(),
     },
