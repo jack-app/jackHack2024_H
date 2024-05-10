@@ -1,4 +1,4 @@
-from AssignmentHandler.GoogleCalenderAPIWrapper.GoogleCalendarColorData import EVENT_COLORS,CALENDER_COLORS
+from AssignmentRegister.GoogleCalenderAPIWrapper.GoogleCalendarColorData import EVENT_COLORS,CALENDER_COLORS
 
 for color in EVENT_COLORS:
     print(color)

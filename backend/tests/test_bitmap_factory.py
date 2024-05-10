@@ -1,6 +1,6 @@
-from AssignmentHandler.CalenderEventGenerator.CalenderEventScheduler import bitmapFactory
+from AssignmentRegister.CalenderEventGenerator.CalenderEventScheduler import bitmapFactory
 from asyncio import run
-from AssignmentHandler.InterpackageObject.datetime_expansion import timespan
+from AssignmentRegister.InterpackageObject.datetime_expansion import timespan
 from datetime import datetime,time,timezone,timedelta
 
 async def test(fr:datetime):
