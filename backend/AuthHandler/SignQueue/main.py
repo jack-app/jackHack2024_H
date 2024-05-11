@@ -1,5 +1,5 @@
 from secrets import token_hex
-from .exceptions import StateNotExists
+from .exceptions import StateNotExists, TokenFechingTimeout
 from .config import _POP_TRIAL_INTERVAL, _POP_TRIAL_LIMIT, _STATE_EXPIRY, _MAX_QUEUE_SIZE
 from asyncio import sleep, get_running_loop
 from datetime import datetime, timedelta
@@ -72,7 +72,7 @@ class SignQueue:
             raise StateNotExists(f"{state} is not in the queue.")
         
         if self.queue[state].code is None:
-            raise TimeoutError(f"timeout. code is not set for {state} yet.")
+            raise TokenFechingTimeout(f"timeout. the code is not set for {state} yet.")
 
         result = self.queue[state].code
         del self.queue[state]

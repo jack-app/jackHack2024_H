@@ -16,7 +16,7 @@ class GoogleAPITokenBundle:
         try:
             return GoogleAPITokenBundle(d[ACCESS_TOKEN], d[REFRESH_TOKEN])
         except KeyError as e:
-            raise TokenNotFound(e)
+            raise TokenNotFound(str(e))
 
     def __init__(self, access_token: str, refresh_token: str):
         self.access_token = access_token
