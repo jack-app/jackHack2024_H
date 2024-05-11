@@ -40,7 +40,7 @@ class GoogleAPITokenHandler:
             url,state = self.get_auth_url()
             self.sign_queue.issueState(state)
             response.set_cookie(key=AUTH_FLOW_STATE, value=state, **cookie_options)
-            return {"auth_url": url, "msg": "success"}
+            return {"auth_url": url, "detail": "success"}
 
         @self.APP.get("/oauth2callback")
         async def oauth2callback(state:str, error: None|str = None, code: None|str = None):
@@ -87,7 +87,7 @@ class GoogleAPITokenHandler:
             except KeyError:
                 raise HTTPException(status_code=401, detail="tokens are not issued. re-authenticate.")
 
-            return {"msg": "success"}
+            return {"detail": "success"}
     
         @self.APP.get("/refreshTokens")
         async def refreshTokens(request: Request, response: Response):
@@ -95,7 +95,7 @@ class GoogleAPITokenHandler:
             await gapibundle.refresh()
             response.set_cookie(key=ACCESS_TOKEN,value=gapibundle.access_token, **cookie_options)
             response.set_cookie(key=REFRESH_TOKEN,value=gapibundle.refresh_token, **cookie_options)
-            return {"msg": "success"}
+            return {"detail": "success"}
 
     
         @self.APP.get("/revokeTokens")
@@ -104,4 +104,4 @@ class GoogleAPITokenHandler:
             await gapibundle.revoke()
             response.delete_cookie(key=ACCESS_TOKEN, **cookie_options)
             response.delete_cookie(key=REFRESH_TOKEN, **cookie_options)
-            return {"msg": "success"}
+            return {"detail": "success"}
