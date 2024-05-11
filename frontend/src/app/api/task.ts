@@ -24,8 +24,8 @@ export default class TaskEntry {
     return {
       id: this.id,
       title: this.title,
-      openTime: this.openTime,
-      dueDate: this.dueDate,
+      openTime: this.openTime.toJSON(),
+      dueDate: this.dueDate.toJSON(),
       courseName: this.courseName,
       courseId: this.courseId,
     };

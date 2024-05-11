@@ -92,7 +92,7 @@ export default class AssignmentEntryRegister {
     const body = new RequiredAssignmentEntry(
       json.id,
       json.title,
-      json.dueDate,
+      new Date(json.dueDate),
       json.courseName,
       json.courseId,
       json.duration ? json.duration : 60 //なぜかnullが入る
