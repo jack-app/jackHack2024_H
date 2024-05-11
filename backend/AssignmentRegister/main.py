@@ -4,7 +4,6 @@ from .InterpackageObject.dataTransferObject import Assignment
 from .CalenderEventGenerator import CalenderEventGenerator
 from .CalenderEventRegister import CalenderEventRegister
 from datetime import datetime,timedelta
-from .exceptions import ReAuthorizationRequired
 from AuthHandler import GoogleAPITokenBundle
 from AuthHandler.GoogleAPITokenHandler.exceptions import TokenNotFound
 from .GoogleCalenderAPIWrapper import GoogleCalenderAPIClient

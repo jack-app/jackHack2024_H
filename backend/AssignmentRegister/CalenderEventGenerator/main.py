@@ -1,8 +1,9 @@
-from ..InterpackageObject.dataTransferObject import Assignment,CalenderEvent,SleepSchedule
+from ..InterpackageObject.dataTransferObject import Assignment,CalenderEvent
 from ..InterpackageObject.datetime_expansion import timespan
 from ..GoogleCalenderAPIWrapper import GoogleCalenderAPIClient
 from datetime import datetime,timedelta,timezone,time
 from .CalenderEventScheduler import Scheduler
+from .config import DEFAULT_SLEEP_SCHEDULE
 
 class CalenderEventGenerator:
     def __init__(self,APIClient:GoogleCalenderAPIClient):
@@ -14,10 +15,7 @@ class CalenderEventGenerator:
                 assignment.dueDate
             ),
             self.google_calender_api_client,
-            sleepSchedule=SleepSchedule(
-                go_to_bed=time(hour=22,minute=0),
-                wake_up=time(hour=8,minute=0)
-            )
+            sleepSchedule=DEFAULT_SLEEP_SCHEDULE
         )
         chunks = await scheduler.get_chunks_fullfill_specs(assignment.duration)
         for chunk in chunks:
