@@ -1,6 +1,5 @@
 from datetime import datetime,timedelta,time
 from pydantic import BaseModel,model_validator
-from pydantic_extra_types.color import Color
 from typing import List
 
 class SleepSchedule(BaseModel):

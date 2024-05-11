@@ -1,9 +1,6 @@
 from datetime import datetime
 from fastapi import HTTPException
 
-class InvalidToken(HTTPException):
-    def __init__(self,msg:str):
-        super().__init__(status_code=401,detail=msg)
 class TooManyEvents(HTTPException):
     def __init__(self,msg:str):
         super().__init__(status_code=500,detail=msg)
