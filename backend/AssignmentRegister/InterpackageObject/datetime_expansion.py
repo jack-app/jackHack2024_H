@@ -10,7 +10,7 @@ class timespan:
     
     def __init__(self, start:datetime, end:datetime):
         if start > end:
-            raise ValueError(f"start is later than end: {self.start.isoformat()} > {self.end.isoformat()}")
+            raise ValueError(f"start is later than end: {start.isoformat()} > {end.isoformat()}")
         self.start = start
         self.end = end
     
@@ -23,7 +23,7 @@ class timespan:
             return self.start <= target.start and target.end <= self.end
         if isinstance(target, datetime):
             return self.start <= target <= self.end
-        raise ValueError(f"target is not datetime or timespan: {target}")
+        raise TypeError(f"target is not datetime or timespan: {target}")
     def duration(self):
         return self.end - self.start
     def __str__(self):

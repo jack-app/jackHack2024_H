@@ -1,5 +1,5 @@
 from tests.module_get_token import get_tokenBundle
-from AssignmentHandler.GoogleCalenderAPIWrapper import GoogleCalenderAPIClient
+from AssignmentRegister.GoogleCalenderAPIWrapper import GoogleCalenderAPIClient
 from datetime import datetime,timedelta,timezone
 from asyncio import run
 

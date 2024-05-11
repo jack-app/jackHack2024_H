@@ -1,6 +1,6 @@
 from ..InterpackageObject.dataTransferObject import CalenderEvent
 from ..InterpackageObject.datetime_expansion import timespan
-from ..exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
+from .exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified, TooManyEvents
 from datetime import datetime, timezone
 from AuthHandler import GoogleAPITokenBundle
 from aiohttp import request
@@ -39,7 +39,7 @@ class GoogleCalenderAPIClient:
             if resp.status == 200:
                 events = await resp.json()
                 if "nextPageToken" in events:
-                    raise Exception("There were too many events to fetch.")
+                    raise TooManyEvents("There were too many events to fetch.")
                 return events["items"]
             if resp.status == 401:
                 raise ReAuthorizationRequired(await resp.text())

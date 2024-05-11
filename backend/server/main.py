@@ -19,7 +19,7 @@ class Server:
     def defEndpoints(self):
         @self.APP.get("/")
         def root():
-            return {"msg":"You're successfully accessing to the FastAPI server."}
+            return {"detail":"You're successfully accessing to the FastAPI server."}
 
     def run(self):
         import uvicorn
