@@ -15,39 +15,44 @@ class FreeBusyBitMap:
     interval:timedelta
     length:int
 
-    class __spanIndex(BaseModel): # データのアノテーションのためだけに使う
+    # それぞれのbitがそれぞれの時間的区間を表す.bitが表す時間的区間をcellと呼称する。
+    # 一つ以上の連続したcellを結合してできた連続した区間をchunkと呼称する。
+
+    def __init__(self, scope: timespan, interval:timedelta):
+        self.bitMap = 0b0 # free = 0, busy = 1. 
+        self.scope = scope 
+        self.interval = interval 
+        self.length = ceil(scope.duration() / interval)
+
+    @overload
+    def _overlap_assertion(self, target:datetime) -> None: ...
+    @overload
+    def _overlap_assertion(self, target:timespan) -> None: ...
+    def _overlap_assertion(self, target):
+        if isinstance(target, timespan):
+            if not self.scope.overlaps(target):
+                raise ValueError(f"timespan is not in scope: {target} is not in {self.scope}")
+            return
+        if isinstance(target, datetime):
+            if not self.scope.overlaps(target):
+                raise ValueError(f"time is not in scope: {target.isoformat()} is not in {self.scope}")
+    class __cellIndex(BaseModel): # データのアノテーションのためだけに使っている
         """
         onBoundaryがTrueの時、timeはindex-1とindexのspanのちょうど堺にある。
         """
         index:int
         onBoundary:bool
 
-    def __init__(self, scope: timespan, interval:timedelta):
-        self.bitMap = 0b0 # free = 0, busy = 1. それぞれのbitがそれぞれの時間的区間を表す.
-        self.scope = scope 
-        self.interval = interval 
-        self.length = ceil(scope.duration() / interval)
-
-    @overload
-    def overlaps(self, target:datetime) -> None: ...
-    @overload
-    def overlaps(self, target:timespan) -> None: ...
-    def overlaps(self, target):
-        if isinstance(target, timespan):
-            if not self.scope.overlaps(target):
-                raise ValueError(f"time is not in scope: {target} is not in {self.scope}")
-            return
-        if isinstance(target, datetime):
-            if not self.scope.overlaps(target):
-                raise ValueError(f"time is not in scope: {target.isoformat()} is not in {self.scope}")
-
-    def fall_into_which_bit(self, time:datetime):
-        self.overlaps(time)
+    def get_cell_index_of(self, time:datetime):
+        self._overlap_assertion(time)
         index = (time - self.scope.start) // self.interval
         rest = (time - self.scope.start) % self.interval
-        return self.__spanIndex(index= index,onBoundary= rest == timedelta(0)) 
+        return self.__cellIndex(index= index,onBoundary= rest == timedelta(0)) 
     
-    def sign_as_busy_within_scope(self, span:timespan):
+    def sign_as_busy_safely(self, span:timespan):
+        # spanがscopeの外にある場合にも対応する。
+        # もともと用いられていたsign_as_busyを_sign_as_busyとして内部に隠蔽し、
+        # このメソッドを公開してエラー/複雑なロジックの漏れ出しを防ぐ。
         if span.end < self.scope.start or self.scope.end < span.start: return
         if self.scope.start > span.start:
             span = timespan(self.scope.start,span.end)
@@ -56,10 +61,9 @@ class FreeBusyBitMap:
         self._sign_as_busy(span)
 
     def _sign_as_busy(self, span:timespan):
-        self.overlaps(span)
 
-        first_span = self.fall_into_which_bit(span.start)
-        last_span = self.fall_into_which_bit(span.end)
+        first_span = self.get_cell_index_of(span.start)
+        last_span = self.get_cell_index_of(span.end)
 
         if first_span.onBoundary and first_span.index > 0:    
             scope_start_to_first = (1 << first_span.index-1) - 1 # first_span.index-1 を含まない
@@ -74,7 +78,7 @@ class FreeBusyBitMap:
         first_span_to_last = scope_start_to_last - scope_start_to_first
         self.bitMap |= first_span_to_last
 
-    def bit_index_to_timespan(self, index:int):
+    def cast_bit_index_to_cell(self, index:int):
         if index >= self.length: raise ValueError(f"index is out of range: {index} >= {self.length}")
         
         up_to = None
@@ -98,20 +102,24 @@ class FreeBusyBitMap:
                     current = None
             else: # i番目の bit が 0 : i番目の時間区間においてfree
                 if current is None:
-                    current = self.bit_index_to_timespan(i)
+                    current = self.cast_bit_index_to_cell(i)
                 else:
-                    current = current.concat(self.bit_index_to_timespan(i))
+                    current = current.concat(self.cast_bit_index_to_cell(i))
             await sleep(0)
         if current is not None:
             yield current
 
+    # 破壊的に反転する
+    # 隠蔽するべきか？
+
     def reverse(self):
+        """注意: 破壊的"""
         currentMap = self.bitMap
         self._sign_as_busy(self.scope)
         self.bitMap = self.bitMap ^ currentMap
         return self
     
-    # 以下演算子オーバーロード
+    # 以下演算子オーバーロード。演算子はすべて非破壊的。
 
     def clone(self):
         newMap = FreeBusyBitMap(self.scope,self.interval)

@@ -1,6 +1,6 @@
 from ..InterpackageObject.dataTransferObject import CalenderEvent
 from ..InterpackageObject.datetime_expansion import timespan
-from ..exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
+from .exceptions import ReAuthorizationRequired, UnexpectedAPIResponce, TimeZoneUnspecified
 from datetime import datetime, timezone
 from AuthHandler import GoogleAPITokenBundle
 from aiohttp import request
