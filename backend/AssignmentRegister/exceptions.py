@@ -1,14 +1,16 @@
 from datetime import datetime
+from fastapi import HTTPException
 
-class InvalidToken(Exception):
-    http_status = 401
-class TooManyEvents(Exception):
-    http_status = 500
-class UnexpectedAPIResponce(Exception):
-    http_status = 500
-class ReAuthorizationRequired(Exception):
-    http_status = 401
-class TimeZoneUnspecified(Exception):
+class InvalidToken(HTTPException):
+    def __init__(self,msg:str):
+        super().__init__(status_code=401,detail=msg)
+class TooManyEvents(HTTPException):
+    def __init__(self,msg:str):
+        super().__init__(status_code=500,detail=msg)
+class UnexpectedAPIResponce(Exception): pass
+class ReAuthorizationRequired(HTTPException):
+    def __init__(self,msg:str):
+        super().__init__(status_code=401,detail=msg)
+class TimeZoneUnspecified(HTTPException):
     def __init__(self, time:datetime):
-        self.msg = f"timezone is not specified in {time.isoformat()}"
-    http_status = 500
+        super().__init__(status_code=500,detail=f"timezone is not specified in {time.isoformat()}")
