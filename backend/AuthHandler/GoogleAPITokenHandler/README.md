@@ -4,7 +4,7 @@
 
 必要な認証情報は`backend/CREDS`内に配置される。
 SignQueueに依存している。
-GoogleOAuthのラッパ。通信関連における非同期処理に対応している。
+GoogleOAuthのラッパ。通信関連における非同期処理に対応するため、Googleが提供するライブラリではなく、aiohttpによって直接提供されているエンドポイントを叩いている。
 Redirectによってよりシンプルな実装が可能であると思われたが、Redirectを使用するとcookieが設定されない現象を確認したため、現在の少々複雑なプロトコルを用いている。
 
 [リファレンス](https://developers.google.com/identity/protocols/oauth2/web-server?hl=ja)
@@ -29,3 +29,12 @@ Redirectによってよりシンプルな実装が可能であると思われた
 2. `auth_url`にアクセスして`code`を取得しリダイレクトされる。ユーザーは`APP/oauth2callback`(リダイレクト先)に`code`を渡して、これがそのまま内部的に`code`を`token`に変換し**cookieとして返却する。**
 
 調査と試行の結果、リダイレクト先がcookieをセットすることができない(**cookieとして返却する**ことができない)現象が確認され、このプロトコルは機能不全となった。
+
+## tokenBundle
+
+access_tokenとrefresh_tokenをセットで扱うためのバンドルオブジェクト。
+tokenさえあれば複雑なフローをたどることなしに行うことができるので、refresh, revokeなどの機能も持たせている。
+
+# 例外
+
+exceptions.pyに定められた例外を送出する可能性がある

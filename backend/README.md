@@ -29,7 +29,7 @@
 ### main.py *ENTRYPOINT
 
 main: *エントリーポイント
-サーバーの起動・各種インスタンスの生成
+サーバーの起動・各種インスタンスの生成を行う
 
 ### test.py
 
@@ -44,12 +44,18 @@ main: *エントリーポイント
 @developpers: `dummy.`ファイルを削除しないように。
 
 スクリプトとしての機能は環境変数を読み込むだけなので、すべての処理が`__init__.py`内に記述されている。 
+[詳細](DEPLOY_SETTING/README.md)
 
 ### AuthHandler
 
 APIなどの利用に歳する認証フローを扱うプログラムがここに配置される。
 今のところはGoogleCalenderAPIしか扱わないが、拡張性のために抽象化レイヤーとして置かれている。
 [詳細](AuthHandler/README.md)
+
+### AssignmentRegister
+
+フロントエンドからAssignment構造体を受け付け、GoogleCalenderに登録する。
+[詳細](AssignmentRegister/README.md)
 
 ### server
 
