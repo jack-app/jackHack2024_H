@@ -1,5 +1,3 @@
-from AssignmentRegister.GoogleCalenderAPIWrapper import GoogleCalenderAPIClient
-from AuthHandler.GoogleAPITokenHandler.tokenBundle import GoogleAPITokenBundle
 import requests
 from tests.module_get_token import get_tokens_asDict
 from datetime import datetime,timedelta,timezone
