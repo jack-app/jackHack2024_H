@@ -10,7 +10,7 @@ class timespan:
     
     def __init__(self, start:datetime, end:datetime):
         if start > end:
-            raise ValueError(f"start is later than end: {self.start.isoformat()} > {self.end.isoformat()}")
+            raise ValueError(f"start is later than end: {start.isoformat()} > {end.isoformat()}")
         self.start = start
         self.end = end
     

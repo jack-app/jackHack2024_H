@@ -7,6 +7,9 @@ from math import ceil
 from asyncio import sleep
 
 class FreeBusyBitMap:
+    """
+    扱うdatetimeはすべて秒以下を切り捨てる。
+    """
     bitMap:int
     scope:timespan
     interval:timedelta
@@ -44,7 +47,15 @@ class FreeBusyBitMap:
         rest = (time - self.scope.start) % self.interval
         return self.__spanIndex(index= index,onBoundary= rest == timedelta(0)) 
     
-    def sign_as_busy(self, span:timespan):
+    def sign_as_busy_within_scope(self, span:timespan):
+        if span.end < self.scope.start or self.scope.end < span.start: return
+        if self.scope.start > span.start:
+            span = timespan(self.scope.start,span.end)
+        if self.scope.end < span.end:
+            span = timespan(span.start,self.scope.end)
+        self._sign_as_busy(span)
+
+    def _sign_as_busy(self, span:timespan):
         self.overlaps(span)
 
         first_span = self.fall_into_which_bit(span.start)
@@ -77,7 +88,7 @@ class FreeBusyBitMap:
             up_to
         )
 
-    async def get_free_timespans(self):
+    async def get_free_chunks(self):
         current = None
         for i in range(self.length):
             if (self.bitMap >> i) & 1:# i番目の bit が 1 : i番目の時間区間においてbusy
@@ -96,7 +107,7 @@ class FreeBusyBitMap:
 
     def reverse(self):
         currentMap = self.bitMap
-        self.sign_as_busy(self.scope)
+        self._sign_as_busy(self.scope)
         self.bitMap = self.bitMap ^ currentMap
         return self
     
