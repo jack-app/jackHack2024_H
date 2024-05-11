@@ -20,7 +20,7 @@ for d in range(24):
     fr = datetime.now(timezone.utc).replace(hour=d,minute=0,second=0,microsecond=0)
     run(test(fr))
     
-bitmap = FreeBusyBitMap(scope=timespan(start=datetime.now(timezone.utc),end=datetime.now(timezone.utc)+timedelta(days=7)), interval=timedelta(minutes=30))
-bitmap._sign_as_busy(timespan(start=datetime.now(timezone.utc)+timedelta(days=2),end=datetime.now(timezone.utc)+timedelta(days=3)))
+bitmap = FreeBusyBitMap(scope=timespan(start=datetime.now(timezone.utc),end=datetime.now(timezone.utc)+timedelta(days=1)), interval=timedelta(minutes=1))
+bitmap._sign_as_busy(timespan(start=datetime.now(timezone.utc)+timedelta(hours=11,minutes=30),end=datetime.now(timezone.utc)+timedelta(hours=12,minutes=30)))
 print(bitmap)
-print(bitmapFactory.make_margin(bitmap, timedelta(hours=2)))
+print(bitmapFactory.make_margin(bitmap, timedelta(minutes=15)))

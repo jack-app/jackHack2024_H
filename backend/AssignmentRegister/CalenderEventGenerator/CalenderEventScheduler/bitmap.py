@@ -38,7 +38,7 @@ class FreeBusyBitMap:
                 raise ValueError(f"time is not in scope: {target.isoformat()} is not in {self.scope}")
     class __cellIndex(BaseModel): # データのアノテーションのためだけに使っている
         """
-        onBoundaryがTrueの時、timeはindex-1とindexのspanのちょうど堺にある。
+        onBoundaryがTrueの時、timeはindex-1とindexのspanのちょうど境にある。
         """
         index:int
         onBoundary:bool

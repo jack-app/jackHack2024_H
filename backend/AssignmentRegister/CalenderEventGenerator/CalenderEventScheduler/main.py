@@ -14,7 +14,7 @@ class Scheduler:
     #spec <- どのようなchunkを返すかを定める関数(またそのために必要な情報)。
     event_bitmap:FreeBusyBitMap
     sleeping_bitmap:FreeBusyBitMap
-    event_bitmap_with_margin:FreeBusyBitMap
+    event_bitmap_with_task_margin:FreeBusyBitMap
     
     minimum_chunk_size:timedelta
     submission_margin:timedelta
@@ -35,10 +35,10 @@ class Scheduler:
         self.interval = interval
 
 
-        self.event_bitmap = await avoid_task_overlapping(scope,google_calender_api_client,interval)
-        self.event_bitmap_with_margin = make_margin(self.event_bitmap, task_margin)
-        self.sleeping_bitmap = await avoid_sleeping_time(scope,sleepSchedule,interval)
-        
+        self.event_bitmap = await avoid_task_overlapping(self.margined_scope,google_calender_api_client,interval)
+        self.event_bitmap_with_task_margin = make_margin(self.event_bitmap, task_margin)
+        self.sleeping_bitmap = await avoid_sleeping_time(self.margined_scope,sleepSchedule,interval)
+
         self.minimum_chunk_size = minimum_chunk_size
         
         return self
@@ -71,7 +71,7 @@ class Scheduler:
 
     async def _primary_chunk_spec(self, required_duration:timedelta):
         return await self._get_free_chunks_of(
-            self.event_bitmap_with_margin|self.sleeping_bitmap, 
+            self.event_bitmap_with_task_margin|self.sleeping_bitmap, 
             required_duration, 
             self.minimum_chunk_size
         )
@@ -83,8 +83,7 @@ class Scheduler:
             self.minimum_chunk_size
         )
 
-    def _last_chunk_spec(self, required_duration:timedelta):
-        # margined_scopeの最後までに終わるように。
+    async def _last_chunk_spec(self, required_duration:timedelta):
         return [timespan(self.margined_scope.start + self.margined_scope.duration() - required_duration, self.margined_scope.end)]
     
     async def get_chunks_fullfill_specs(self, required_duration:timedelta):

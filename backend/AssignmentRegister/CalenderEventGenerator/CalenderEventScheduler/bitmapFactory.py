@@ -26,13 +26,13 @@ def make_margin(bitmap: FreeBusyBitMap, margin: timedelta):
     """
     bitmap = bitmap.clone()
 
-    scope_filter = FreeBusyBitMap(timespan(bitmap.scope.start,bitmap.scope.end),bitmap.interval)
+    scope_filter = FreeBusyBitMap(bitmap.scope,bitmap.interval)
     scope_filter.reverse()
     
-    margin_bit_size = ceil(bitmap.interval / margin)
-    for i in range(1,margin_bit_size+1):
-        bitmap.bitMap |= ( bitmap.bitMap << i)
-        bitmap.bitMap |= ( bitmap.bitMap >> i)
+    margin_bit_size = ceil(margin / bitmap.interval)
+    for _ in range(1,margin_bit_size+1):
+        bitmap.bitMap |= ( bitmap.bitMap << 1)
+        bitmap.bitMap |= ( bitmap.bitMap >> 1)
     bitmap.bitMap &= scope_filter.bitMap
     return bitmap
 
@@ -42,7 +42,7 @@ async def avoid_sleeping_time(target_timespan: timespan, sleepSchedule: SleepSch
     """
     bitmap = FreeBusyBitMap(scope=target_timespan,interval=interval)
 
-    # 活動時間と睡眠時間を取得
+    # 睡眠時間を取得
     go_to_bed_f = __cast_time_to_float(sleepSchedule.go_to_bed)
     wake_up_f = __cast_time_to_float(sleepSchedule.wake_up)
 
@@ -53,10 +53,11 @@ async def avoid_sleeping_time(target_timespan: timespan, sleepSchedule: SleepSch
         minutes=int((sleep_duration % 1)*60) 
     )
 
+    # timezoneを自動では合わせてくれないので、手動で合わせる。
     cursor = datetime.combine(
-        date=target_timespan.start,
+        date=target_timespan.start.astimezone(sleepSchedule.go_to_bed.tzinfo),
         time=sleepSchedule.go_to_bed,
-        tzinfo=target_timespan.start.tzinfo
+        tzinfo=sleepSchedule.go_to_bed.tzinfo
     ) - timedelta(days=1) #その日の前日の就寝時間に合わせる
 
     while cursor <= target_timespan.end:

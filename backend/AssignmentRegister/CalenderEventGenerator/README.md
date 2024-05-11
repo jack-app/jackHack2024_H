@@ -24,3 +24,6 @@ Assignmentを受け取ってCalenderEvent(s)を生成する。
 
 CalenderEventScheduler/bitmapFacotry/avoid_task_overlappingが
 GoogleCalenderAPIWrapperに依存しているのでこの例外が送出される可能性がある。
+
+また、すでに提出期限が過ぎた課題を提出しようとした場合`AssingmentOverDue`が送出される
+->提出期限も切れた課題もカレンダーに登録するべきか否かは要検討。

@@ -4,11 +4,15 @@ from ..GoogleCalenderAPIWrapper import GoogleCalenderAPIClient
 from datetime import datetime,timedelta,timezone,time
 from .CalenderEventScheduler import Scheduler
 from .config import DEFAULT_SLEEP_SCHEDULE
+from .exceptions import AssignmentOverDue
 
 class CalenderEventGenerator:
     def __init__(self,APIClient:GoogleCalenderAPIClient):
         self.google_calender_api_client = APIClient
     async def generate_events(self, assignment:Assignment):
+        if assignment.dueDate < datetime.now(timezone.utc):
+            raise AssignmentOverDue()
+
         scheduler = await Scheduler(
             timespan(
                 datetime.now(timezone.utc),
