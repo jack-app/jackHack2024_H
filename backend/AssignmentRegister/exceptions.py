@@ -13,4 +13,4 @@ class ReAuthorizationRequired(HTTPException):
         super().__init__(status_code=401,detail=msg)
 class TimeZoneUnspecified(HTTPException):
     def __init__(self, time:datetime):
-        super().__init__(status_code=500,detail=f"timezone is not specified in {time.isoformat()}")
+        super().__init__(status_code=400,detail=f"timezone is not specified in {time.isoformat()}")

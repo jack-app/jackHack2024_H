@@ -33,23 +33,16 @@ class AssignmentHandler:
                 duration=command.duration,
                 description=command.description
             )
-            try:
-                tokenBundle = GoogleAPITokenBundle.from_dict(request.cookies)
-                GoogleAPI_client = GoogleCalenderAPIClient(tokenBundle)
+            tokenBundle = GoogleAPITokenBundle.from_dict(request.cookies)
+            GoogleAPI_client = GoogleCalenderAPIClient(tokenBundle)
 
-                event_register = CalenderEventRegister(GoogleAPI_client)
-                event_generator = CalenderEventGenerator(GoogleAPI_client)
-                
-                event_ids = []
-                async for event in event_generator.generate_events(assignment):
-                    event_ids.append(await event_register.register(event))
-                return {"msg":"success","event_ids":event_ids}
+            event_register = CalenderEventRegister(GoogleAPI_client)
+            event_generator = CalenderEventGenerator(GoogleAPI_client)
+            
+            event_ids = []
+            async for event in event_generator.generate_events(assignment):
+                event_ids.append(await event_register.register(event))
+            return {"detail":"success","event_ids":event_ids}
 
-            except ReAuthorizationRequired as e:
-                response.status_code=e.http_status
-                return {"msg":str(e)}
-            except TokenNotFound as e:
-                response.status_code=e.http_status
-                return {"msg":str(e)}
 
             
