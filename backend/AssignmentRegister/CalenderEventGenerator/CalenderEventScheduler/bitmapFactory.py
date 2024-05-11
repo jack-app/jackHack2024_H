@@ -8,6 +8,10 @@ from asyncio import sleep
 from math import ceil
 
 async def avoid_task_overlapping(target_timespan: timespan,calender_api_client: GoogleCalenderAPIClient,interval:timedelta=DEFUALT_CELL_INTERVAL):
+    """
+    GoogleCalenderAPIClientを利用してscope内に存在するイベントをすべて取得。
+    イベントの存在するcellをすべてbusyとしてマークしたbitmapを返す。
+    """
     bitmap = FreeBusyBitMap(scope=target_timespan,interval=interval)
     async for busy_period in calender_api_client.get_busytimes(target_timespan.end):
         bitmap.sign_as_busy_safely(busy_period)
@@ -18,7 +22,7 @@ def __cast_time_to_float(time:time):
 
 def make_margin(bitmap: FreeBusyBitMap, margin: timedelta):
     """
-    bitmapのbusyな部分をmarginだけ広げる。
+    bitmapのbusyな部分をmarginだけ広げたbitmapを返す。
     """
     bitmap = bitmap.clone()
 
@@ -34,7 +38,7 @@ def make_margin(bitmap: FreeBusyBitMap, margin: timedelta):
 
 async def avoid_sleeping_time(target_timespan: timespan, sleepSchedule: SleepSchedule,interval:timedelta=DEFUALT_CELL_INTERVAL):
     """
-    睡眠時間をbusyとしてマークする。
+    睡眠時間をbusyとしてマークしたbitmapを返す。
     """
     bitmap = FreeBusyBitMap(scope=target_timespan,interval=interval)
 
